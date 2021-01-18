@@ -1,0 +1,846 @@
+﻿const isMobile = window.innerWidth < 1200;
+const isDesktop = !isMobile;
+const IS_IOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
+
+IS_IOS ? $('body').addClass('ios-device') : $('body').addClass('android-device');
+
+// Consts.
+var LINE_KEY_RED = "#db0000";
+var LINE_KEY_YELLOW = "#ffc801";
+var LINE_KEY_BLUE = "#346099";
+var LINE_KEY_DARK_BLUE = "#123B70";
+var BAR_BLUE_ALPHA_COLOR = "rgba(52,96,153, 0.7)";
+
+
+
+
+// Delay iframes loading.
+$.each($('iframe'),
+    function (key, value) {
+        var url = $(value).attr('src');
+        $(value).attr('data-src', url);
+        $(value).attr('src', '');
+        $(value).attr("loading", "lazy");
+    });
+
+// Load it only after the window is ready.
+$(window).on('load',
+    function () {
+        $.each($('iframe'),
+            function (key, value) {
+                var url = $(value).attr('data-src');
+                $(value).attr('src', url);
+            });
+    });
+
+
+
+
+// If embed, and if not platform is forced, add the class automatically.
+if ($('body').hasClass("embed") && ((!$('body').hasClass("force-desktop")) && (!$('body').hasClass("force-mobile")))) {
+    // device if mobile.
+    if (
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i
+            .test(navigator.userAgent) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i
+            .test(navigator.userAgent.substr(0, 4))) {
+        $('body').addClass("force-mobile");
+    } else {
+        $('body').addClass("force-desktop");
+    }
+
+}
+
+
+
+// Get selected graph up, if needed.
+if (_selectedGraph) {
+    // Get it and check if it's a canvas first.
+    var item = $("#" + _selectedGraph);
+    if (item.length > 0) {
+        item.closest("section").insertBefore($(".section.stats-section").first());
+    }
+}
+
+
+
+$(document).ready(function () {
+
+    //InitializeGraph();
+    //InitializeGlobalGraph();
+
+    if ($("#line-graph-canvas").length > 0) {
+        InitializeStatsGraph('line-graph-canvas', _graphKeys, _graphValues, _graphPoints, _graphMinValue, _graphMaxValue, _graphStep, false, _graphLine, _graphLineText, "חולים", LINE_KEY_YELLOW, null, true, _graphZoomStartDate);
+    }
+
+    if ($("#line-global-graph-canvas").length > 0) {
+        InitializeStatsGraph('line-global-graph-canvas', _globalGraphKeys, _globalGraphValues, _globalGraphPoints, _globalGraphMinValue, _globalGraphMaxValue, _globalGraphStep, false, null, null, "חולים", LINE_KEY_YELLOW);
+    }
+
+    if ($("#line-deaths-graph-canvas").length > 0) {
+        InitializeStatsGraph('line-deaths-graph-canvas', _deathsGraphKeys, _deathsGraphValues, _deathsGraphPoints, _deathsGraphMinValue, _deathsGraphMaxValue, _deathsGraphStep, false, null, null, "מתים", LINE_KEY_YELLOW);
+    }
+
+    // Tests bar.
+    if ($("#bar-tests-canvas").length > 0) {
+        // Filter keys if mobile.
+        if (isMobile && (_testsGraphKeys.length > _testsGraphMobileColumns)) {
+            _testsGraphKeys = _testsGraphKeys.slice(1).slice(-_testsGraphMobileColumns);
+            _testsGraphValues = _testsGraphValues.slice(1).slice(-_testsGraphMobileColumns);
+            _testsGraphValues2 = _testsGraphValues2.slice(1).slice(-_testsGraphMobileColumns);
+        }
+
+        InitializeBarGraphWithPercentageValue('bar-tests-canvas', _testsGraphKeys, _testsGraphValues, _testsGraphValues2, _testsGraphMinValue, _testsGraphMaxValue, _testsGraphStep, _testsGraphLineValue, _testsGraphLineText, false, LINE_KEY_YELLOW);
+    }
+
+    if ($("#line-israeli-cases-percentage-graph-canvas").length > 0) {
+        InitializeStatsGraph('line-israeli-cases-percentage-graph-canvas', _israeliCasesPercentageGraphKeys, _israeliCasesPercentageGraphValues, _israeliCasesPercentageGraphPoints, _israeliCasesPercentageGraphMinValue, _israeliCasesPercentageGraphMaxValue, _israeliCasesPercentageGraphStep, true,
+            _israeliCasesPercentageGraphLineValue, _israeliCasesPercentageGraphLineText, "", LINE_KEY_YELLOW);
+    }
+
+    if ($("#bar-graph-canvas").length > 0) {
+        // Filter keys if mobile.
+        if (isMobile && (_barGraphKeys.length > _barGraphMobileColumns)) {
+            _barGraphKeys = _barGraphKeys.slice(1).slice(-_barGraphMobileColumns);
+            _barGraphValues = _barGraphValues.slice(1).slice(-_barGraphMobileColumns);
+        }
+
+        InitializeBarGraph('bar-graph-canvas', _barGraphKeys, _barGraphValues, _barGraphMinValue, _barGraphMaxValue, _barGraphStep, _barGraphLineValue, _barGraphLineText, false, LINE_KEY_YELLOW);
+    }
+
+    if ($("#line-history-graph-canvas").length > 0) {
+        InitializeHistoryGraph('line-history-graph-canvas');
+    }
+
+    if ($("#line-cities-graph-canvas").length > 0) {
+        InitializeCitiesGraph('line-cities-graph-canvas');
+    }
+
+    InitializeCitiesCasesLatelyGraph();
+    InitializeCountriesVaccinesGraph();
+
+    // Anchor link smooth scroll.
+    $(document).on('click', 'a[href^="#"]', function (event) {
+        event.preventDefault();
+
+        $('html, body').animate({
+            scrollTop: $($.attr(this, 'href')).offset().top - 50
+        }, 1000);
+    });
+
+
+
+    /**
+     * V2.
+     */
+    if ($("#credit-purchases-graph-canvas").length > 0) {
+        InitializeCreditPurchasesGraph('credit-purchases-graph-canvas');
+    }
+
+    if ($("#business-closure-graph-canvas").length > 0) {
+        InitializeBusinessClosureGraph('business-closure-graph-canvas');
+    }
+
+    if ($("#transportation-graph-canvas").length > 0) {
+        InitializeStatsGraph('transportation-graph-canvas', _transportationGraphKeys, _transportationGraphValues, _transportationGraphPoints, _transportationGraphMinValue, _transportationGraphMaxValue, _transportationGraphStep, _transportationGraphIsPercentage,/* _transportationGraphLine, _transportationGraphLineText,*/ null, null, "", LINE_KEY_BLUE);
+    }
+
+    if ($("#back-to-normal-graph-canvas").length > 0) {
+        InitializeStatsGraph('back-to-normal-graph-canvas', _backToNormalGraphKeys, _backToNormalGraphValues, _backToNormalGraphPoints, _backToNormalGraphMinValue, _backToNormalGraphMaxValue, _backToNormalGraphStep, true, null, null, "", LINE_KEY_BLUE);
+    }
+
+    if ($("#unemployment-graph-canvas").length > 0) {
+        // Filter keys if mobile.
+        if (isMobile && (_unemploymentGraphKeys.length > _unemploymentGraphMobileColumns)) {
+            _unemploymentGraphKeys = _unemploymentGraphKeys.slice(1).slice(-_unemploymentGraphMobileColumns);
+            _unemploymentGraphValues = _unemploymentGraphValues.slice(1).slice(-_unemploymentGraphMobileColumns);
+        }
+
+        InitializeBarGraph('unemployment-graph-canvas', _unemploymentGraphKeys, _unemploymentGraphValues, _unemploymentGraphMinValue, _unemploymentGraphMaxValue, _unemploymentGraphStep, _unemploymentGraphLine, _unemploymentGraphLineText, true, LINE_KEY_DARK_BLUE, true);
+    }
+
+    if ($("#job-req-graph-canvas").length > 0) {
+        InitializeStatsGraph('job-req-graph-canvas', _jobReqGraphKeys, _jobReqGraphValues, _jobReqGraphPoints, _jobReqGraphMinValue, _jobReqGraphMaxValue, _jobReqGraphStep, false, _jobReqGraphLine, _jobReqGraphLineText, "", LINE_KEY_BLUE, true);
+    }
+
+    if ($("#market-graph-canvas").length > 0) {
+        InitializeStatsGraph('market-graph-canvas', _marketGraphKeys, _marketGraphValues, _marketGraphPoints, _marketGraphMinValue, _marketGraphMaxValue, _marketGraphStep, true, null, null, "", LINE_KEY_BLUE);
+    }
+
+
+
+
+
+    // FB share.
+    $('#fb-share-btn, #fb-share-btn-mobile').click(function () {
+        OpenFacebookSharer(_serverUrl);
+
+        ga('send', 'event', 'Corona Virus', 'Share activity', 'Facebook');
+    });
+
+
+    // Events.
+    InstallAnalyticsEvents();
+
+    // Mako event.
+    if (!$('body').hasClass("embed")) {
+        SendMakoEvent("HP", "Ex_Corona", "HP", null, _lastReferrer);
+    }
+});
+
+
+
+// Occurs when a stats box pressed.
+function pressedBox(box, statName) {
+    // Check if embed.
+    if ($("body").hasClass("embed")) {
+        // Navigate.
+        //window.open(_serverUrl + "?item=" + $(box).attr("data-graph"), '_blank');
+    } else {
+        // Scroll.
+        var graphName = $(box).attr("data-graph");
+        var graphObject = $("#" + graphName);
+        if (graphObject.length > 0) {
+            // Scroll.
+            $([document.documentElement, document.body]).animate({
+                    scrollTop: graphObject.offset().top - 70
+                },
+                1500);
+        }
+    }
+
+    ga('send', 'event', 'Corona Virus', 'Click on Panel', statName);
+}
+
+
+var masterChart;
+function InitializeStatsGraph(graphCanvasId, keys, values, points, minValue, maxValue, step, usePercentage, lineValue, lineText, label, lineColorKey, greenLine, panEnabled, zoomStartDate) {
+    // Graph.
+    var ctx = document.getElementById(graphCanvasId).getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: keys, //[_firstMonth, _lastMonth, "A", "b"],
+            datasets: [
+                {
+                    label: label,
+                    borderColor: lineColorKey ? lineColorKey : LINE_KEY_RED,
+                    data: values,
+                    fill: false,
+                    borderWidth: 4,
+                    //lineTension: 0.5
+                    pointRadius: points,
+                    pointHitRadius: isMobile ? 10 : 1
+                }
+            ],
+        },
+        // Configuration options go here
+        options: {
+            //title: {
+            //    display: true,
+            //    text: 'test',
+            //    position: 'bottom',
+            //    align: 'center',
+            //    padding: -10,
+            //},
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 30,
+                    top: 20,
+                    bottom: panEnabled ? (isMobile ? 0 : 60) : 20
+                }
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                titleAlign: 'right',
+                bodyAlign: 'right',
+                footerAlign: 'right',
+                textDirection: 'rtl',
+                displayColors: false,
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        return Chart.defaults.global.tooltips.callbacks.label(tooltipItem, data) + (usePercentage ? '%' : '');
+                    }
+                }
+            },
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: "#d8d8d8",
+                        lineWidth: 1,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        beginAtZero: false,
+                        suggestedMin: minValue,
+                        suggestedMax: maxValue,
+                        //maxTicksLimit: 11
+                        stepSize: step,
+                        fontColor: "#0c0c0c",
+                        padding: 15,
+                        callback: function (value) {
+                            if (panEnabled) {
+                                value = parseInt(value);
+                            }
+
+                            return value + (usePercentage ? "%" : "")
+                        }
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        display: false
+                    },
+                    ticks: {
+                        fontColor: "#0c0c0c",
+                        fontSize: 18,
+                        padding: 10,
+                        autoSkip: false,
+                        maxRotation: 0,
+                        // Hide labels on X axis if it's not the first or last.
+                        callback: function (value, index, values) {
+                            // If it's the first day of the month, and if we have pan, display it.
+                            //if ((panEnabled) && (value.startsWith("01."))) {
+                            //    return value;
+                            //}
+
+                            return (index != 0 && index != (values.length - 1)) ? "" : value;
+                        },
+                        min: zoomStartDate
+                    }
+                }],
+                offset: true
+            },
+            // Disable points.
+            elements: {
+                point: {
+                    //radius: 0
+                }
+            },
+            annotation: {
+                events: ["click"],
+                annotations: [
+                    {
+                        drawTime: "afterDatasetsDraw",
+                        id: "hline",
+                        type: "line",
+                        mode: "horizontal",
+                        scaleID: "y-axis-0",
+                        value: lineValue,
+                        borderColor: greenLine ? "#7AB3FF" : "#db0000",
+                        borderWidth: 4,
+                        label: {
+                            content: lineText,
+                            enabled: true,
+                            yAdjust: isMobile ? -12 : -19,
+                            fontSize: isMobile ? 17 : 20,
+                            backgroundColor: 'rgba(0,0,0,0)',
+                            fontColor: '#0c0c0c',
+                            fontStyle: "bold",
+                            fontFamily: "Yonit",
+                            position: 'right',
+                        }
+                    }
+                ]
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    display: false
+                },
+                crosshair: false,
+                zoom: {
+                    // Container for pan options
+                    pan: {
+                        // Boolean to enable panning
+                        enabled: panEnabled,
+
+                        // Panning directions. Remove the appropriate direction to disable
+                        // Eg. 'y' would only allow panning in the y direction
+                        // A function that is called as the user is panning and returns the
+                        // available directions can also be used:
+                        //   mode: function({ chart }) {
+                        //     return 'xy';
+                        //   },
+                        mode: 'x',
+
+                        // On category scale, factor of pan velocity
+                        //speed: 20,
+
+                        // Minimal pan distance required before actually applying pan
+                        //threshold: 10,
+                    },
+
+                    // Container for zoom options
+                    zoom: {
+                        // Boolean to enable zooming
+                        enabled: panEnabled,
+                        mode: 'x',
+                        // Speed of zoom via mouse wheel
+                        // (percentage of zoom on a wheel event)
+                        sensitivity: 0.02
+                    }
+                }
+
+            }
+        }
+    });
+
+    // Set the font here.
+    Chart.defaults.global.defaultFontFamily = 'Yonit';
+    Chart.defaults.global.defaultFontSize = 18;
+
+    if (graphCanvasId == "line-graph-canvas") {
+        masterChart = chart;
+    }
+}
+
+
+
+function InitializeBarGraph(graphCanvasId, keys, values, minValue, maxValue, step, lineValue, lineText, usePercentage, lineColorKey, greenLine) {
+    // Graph.
+    var ctx = document.getElementById(graphCanvasId).getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+
+        // The data for our dataset
+        data: {
+            labels: keys,
+            datasets: [
+                {
+                    //label: 'חולים',
+                    borderColor: lineColorKey ? lineColorKey : LINE_KEY_RED,
+                    backgroundColor: lineColorKey ? lineColorKey : LINE_KEY_RED,
+                    data: values,
+                    fill: false,
+                    borderWidth: 4,
+                    //lineTension: 0.5
+                    //pointRadius: points,
+                    //pointHitRadius: isMobile ? 10 : 1
+                }
+            ],
+        },
+        // Configuration options go here
+        options: {
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20
+                }
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                enabled: false
+            },
+            scales: {
+                yAxes: [{
+                    gridLines: {
+                        color: "#d8d8d8",
+                        lineWidth: 1,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        beginAtZero: false,
+                        suggestedMin: minValue,
+                        suggestedMax: maxValue,
+                        //maxTicksLimit: 11
+                        stepSize: step,
+                        fontColor: "#0c0c0c",
+                        padding: 15,
+                        display: false      // Hide
+                    }
+                }],
+                xAxes: [{
+                    gridLines: {
+                        display: false
+                    },
+                    ticks: {
+                        fontColor: "#0c0c0c",
+                        fontSize: 18,
+                        padding: 10,
+                        autoSkip: false,
+                        maxRotation: 0,
+                        // Hide labels on X axis if it's not the first or last.
+                        //callback: function (value, index, values) {
+                        //    return (index != 0 && index != (values.length - 1)) ? "" : value;
+                        //}
+                    }
+                }],
+                offset: true
+            },
+            // Disable points.
+            elements: {
+                point: {
+                    //radius: 0
+                }
+            },
+            annotation: {
+                events: ["click"],
+                annotations: [
+                    {
+                        drawTime: "afterDatasetsDraw",
+                        id: "hline",
+                        type: "line",
+                        mode: "horizontal",
+                        scaleID: "y-axis-0",
+                        value: lineValue,
+                        borderColor: greenLine ? "#7AB3FF" : "#db0000",
+                        borderWidth: 4,
+                        label: {
+                            content: lineText,
+                            enabled: true,
+                            yAdjust: isMobile ? -12 : -19,
+                            fontSize: greenLine ? 14 : (isMobile ? 17 : 20),
+                            backgroundColor: greenLine ? 'rgba(122,179,255,255)' : 'rgba(0,0,0,0)',
+                            xPadding: 15,
+                            fontColor: greenLine ? '#fff' : '#0c0c0c',
+                            fontStyle: greenLine ? "regular" : "bold",
+                            fontFamily: "Yonit",
+                        }
+                    }
+                ]
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#0c0c0c',
+                    anchor: 'end',
+                    align: 'top',
+                    textAlign: 'center',
+                    font: {
+                        weight: 'bold',
+                        size: isMobile ? 17 : 30
+                    },
+                    formatter: function (value, context) {
+                        return value + (usePercentage ? "%" : "");
+                    }
+                },
+                crosshair: false
+            }
+
+        },
+
+    });
+
+    // Set the font here.
+    Chart.defaults.global.defaultFontFamily = 'Yonit';
+    Chart.defaults.global.defaultFontSize = 18;
+}
+
+
+
+
+
+
+function InitializeBarGraphWithPercentageValue(graphCanvasId, keys, values, percetageValues, minValue, maxValue, step, lineValue, lineText, usePercentage, lineColorKey, greenLine) {
+
+    // Calculate the actual values (using the percentage).
+    var values2 = [];
+    for (var i = 0; i < values.length; i++) {
+        values2.push(values[i] * (percetageValues[i] / 100));
+    }
+
+    // Graph.
+    var ctx = document.getElementById(graphCanvasId).getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+
+        // The data for our dataset
+        data: {
+            labels: keys,
+            datasets: [
+                {
+                    //label: 'חולים',
+                    borderColor: lineColorKey ? lineColorKey : LINE_KEY_RED,
+                    backgroundColor: lineColorKey ? lineColorKey : LINE_KEY_RED,
+                    data: values2,
+                    fill: false,
+                    borderWidth: 4,
+                    //lineTension: 0.5
+                    //pointRadius: points,
+                    //pointHitRadius: isMobile ? 10 : 1
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        offset: 0,
+                        backgroundColor: '#fff',
+                        borderColor: '#ffc800',
+                        borderWidth: 2,
+                        padding: {
+                            top: 2,
+                            bottom: 2,
+                            left: isMobile ? 3 : 10,
+                            right: isMobile ? 3 : 10
+                        },
+                        font: {
+                            size: isMobile ? 17 : 22
+                        },
+                        formatter: function (value, context) {
+                            return percetageValues[context.dataIndex].toFixed(1) + "%";
+                        }
+                    }
+                },
+                {
+                    //label: 'חולים',
+                    borderColor: BAR_BLUE_ALPHA_COLOR,
+                    backgroundColor: BAR_BLUE_ALPHA_COLOR,
+                    data: values,
+                    fill: false,
+                    borderWidth: 0,
+                    //lineTension: 0.5
+                    //pointRadius: points,
+                    //pointHitRadius: isMobile ? 10 : 1
+                }
+            ],
+        },
+        // Configuration options go here
+        options: {
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20
+                }
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                enabled: false
+            },
+            scales: {
+                yAxes: [{
+                    stacked: true,
+                    gridLines: {
+                        color: "#d8d8d8",
+                        lineWidth: 1,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        beginAtZero: false,
+                        suggestedMin: minValue,
+                        suggestedMax: maxValue,
+                        //maxTicksLimit: 11
+                        stepSize: step,
+                        fontColor: "#0c0c0c",
+                        padding: 15,
+                        display: !isMobile      // Hide on mobile.
+                    }
+                }],
+                xAxes: [{
+                    stacked: true,
+                    gridLines: {
+                        display: false
+                    },
+                    ticks: {
+                        fontColor: "#0c0c0c",
+                        fontSize: 18,
+                        padding: 10,
+                        autoSkip: false,
+                        maxRotation: 0,
+                        // Hide labels on X axis if it's not the first or last.
+                        //callback: function (value, index, values) {
+                        //    return (index != 0 && index != (values.length - 1)) ? "" : value;
+                        //}
+                    }
+                }],
+                offset: true
+            },
+            // Disable points.
+            elements: {
+                point: {
+                    //radius: 0
+                }
+            },
+            annotation: {
+                events: ["click"],
+                annotations: [
+                    {
+                        drawTime: "afterDatasetsDraw",
+                        id: "hline",
+                        type: "line",
+                        mode: "horizontal",
+                        scaleID: "y-axis-0",
+                        value: lineValue,
+                        borderColor: (lineValue > 0 ? (greenLine ? "#7AB3FF" : "#db0000") : "rgba(0,0,0,0)"),   // Draw only if there's a line value bigger then 0.
+                        borderWidth: 4,
+                        label: {
+                            content: lineText,
+                            enabled: true,
+                            yAdjust: isMobile ? -12 : -19,
+                            fontSize: greenLine ? 14 : (isMobile ? 17 : 20),
+                            backgroundColor: greenLine ? 'rgba(122,179,255,255)' : 'rgba(0,0,0,0)',
+                            xPadding: 15,
+                            fontColor: greenLine ? '#fff' : '#0c0c0c',
+                            fontStyle: greenLine ? "regular" : "bold",
+                            fontFamily: "Yonit",
+                        }
+                    }
+                ]
+            },
+            plugins: {
+                // Change options for ALL labels of THIS CHART
+                datalabels: {
+                    color: '#0c0c0c',
+                    anchor: 'end',
+                    align: 'top',
+                    textAlign: 'center',
+                    font: {
+                        weight: 'bold',
+                        size: isMobile ? 17 : 22
+                    },
+                    formatter: function (value, context) {
+                        return numberWithCommas(value);
+                    }
+                },
+                crosshair: false
+            }
+
+        },
+
+    });
+
+    // Set the font here.
+    Chart.defaults.global.defaultFontFamily = 'Yonit';
+    Chart.defaults.global.defaultFontSize = 18;
+}
+
+
+
+
+
+
+// Share via Facebook.
+function OpenFacebookSharer(url, width, height) {
+    var leftPosition, topPosition;
+    //Allow for borders.
+    leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    //Allow for title and status bars.
+    topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    var windowFeatures = 'status=no,height=' + height + ',width=' + width + ',resizable=yes,left=' + leftPosition + ',top=' + topPosition + ',screenX=' + leftPosition + ',screenY=' + topPosition + ',toolbar=no,menubar=no,scrollbars=no,location=no,directories=no';
+    var t = document.title;
+    window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(url)/* + '&t=' + encodeURIComponent(t)*/, 'sharer', windowFeatures);
+
+    return false;
+}
+
+
+
+
+// Analytics.
+function InstallAnalyticsEvents() {
+    // After 15 seconds.
+    setTimeout(function () {
+        if (typeof ga !== 'undefined') {
+            ga('send', 'event', 'Corona Virus', '15 sec');
+        }
+    }, 15 * 1000);
+
+
+    // Scroll 50%.
+    var scrollAbove50 = false;
+    $(window).on('scroll', function () {
+        if (!scrollAbove50) {
+            var s = $(window).scrollTop(),
+                d = $(document).height(),
+                c = $(window).height();
+
+            var scrollPercent = (s / (d - c)) * 100;
+
+            if (scrollPercent >= 50) {
+                scrollAbove50 = true;
+                ga('send', 'event', 'Corona Virus', 'Scroll 50%');
+            }
+        }
+    });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Consts.
+var MAKO_EVENT_URL = "https://mobileapp.mako.co.il/metricsCall.html?vcmId=[VCMID]&channelId=[CHANNEL_ID]&contentType=[CONTENT_TYPE]&platform=[PLATFORM]&ref=[REF]";
+var _lastReferrer = null;
+function SendMakoEvent(vcmId, channelId, contentType, platform, referrer) {
+    // Get the platform if not mentioned.
+    if (!platform) {
+        var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+        platform = (width < 768) ? "mobile" : "web";
+    }
+
+    // Get the referrer if not mentioned.
+    if (!referrer) {
+        referrer = document.referrer;
+    }
+
+    // Create the URL.
+    var iframeUrl = MAKO_EVENT_URL.
+        replace("[VCMID]", encodeURIComponent(vcmId)).
+        replace("[CHANNEL_ID]", encodeURIComponent(channelId)).
+        replace("[CONTENT_TYPE]", encodeURIComponent(contentType)).
+        replace("[PLATFORM]", encodeURIComponent(platform)).
+        replace("[REF]", encodeURIComponent(referrer));
+
+    // Add to the document.
+    AddMakoIframeEventToUrl(iframeUrl);
+}
+
+function AddMakoIframeEventToUrl(pixelUrl) {
+    /// <summary>Add conversion pixel to the page, using an invisible iframe.</summary>
+    /// <param name="pixelUrl" type="String">The URL of the pixel.</param>
+
+    var iframe = document.createElement('iframe');
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.visibility = 'hidden';
+    iframe.style.position = 'absolute';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.zIndex = '-100';
+    document.body.appendChild(iframe);
+    iframe.src = pixelUrl; // put URL to tracking code here.
+};
+
+
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+
+// Filter out dates that are older older than a month, and not devided by 3.
+function isGraphDateRelevant(date) {
+    // In the last month.
+    if (new moment().diff(date, 'days', false) <= 7) {
+        return true;
+    } else {
+        return new moment().diff(date, 'days', false) % 3 == 0;
+    }
+}

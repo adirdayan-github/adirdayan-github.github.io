@@ -1,0 +1,281 @@
+var Personalization = {};
+
+Personalization.init = function(){
+	
+	Personalization.hiddenCount = 0;
+	Personalization.sectionsFound = 0;
+	Personalization.dummies = [];
+	Personalization.logTimestamp = function(str){
+		if (location.search.indexOf('personalize=true') > -1){
+			window.console && window.console.debug(str +'::'+ new Date().getTime());
+		}
+	}
+	var hn = location.hostname;
+	if (hn == 'wint.mako.co.il'){	
+		// values will be added: calculatedOrder, isShown, isFound
+		Personalization.SectionUnits = [
+			{  name: 'חדשות', selector: '[data-items="NewNewsOrdering"]'	},
+			{  name: 'בחירות', selector: '[data-items="Elections2019"]'	},			
+			{  name: 'סלבס', selector: '[data-items="NewOrderingEntertainment"]'	},			
+			{  name: 'תכניות קשת', selector: '[data-items="NewOrderingKeshetProg"]'	},		
+			{  name: 'ספורט', selector: '[data-items="NewOrderingMondial"]'	},			
+			{  name: 'תרבות', selector: '[data-items="NewOrderingCulture"]'	},
+			{  name: 'מוזיקה', selector: '[data-items="NewOrderingMusic"]'	},
+			{  name: 'חדשות טובות', selector: '[data-items="GoodNewsOrdering"]'	},
+			{  name: 'NEXTER', selector: '[data-items="NewOrderingNexter"]'	},
+			{  name: 'אוכל', selector: '[data-items="NewOrderingGoodFood"]'	},			
+			{  name: 'Living', selector: '[data-items="NewOrderingLiving"]'	},
+			{  name: 'Fashion Forward', selector: '[data-items="NewOrderingFashionForward"]'	},
+			{  name: 'בריאות', selector: '[data-items="NewOrderingHealth"]'	},
+			{  name: 'הורים', selector: '[data-items="NewOrderingHomeAndFamily"]'	},
+			{  name: 'חופש', selector: '[data-items="NewOrderingTravel"]'	},
+			{  name: 'אוטו', selector: '[data-items="NewOrderingWomen"]'	},
+			{  name: 'mako Nights', selector: '[data-items="makoNights"]'	},
+			{  name: 'כסף', selector: '[data-items="NewOrderingMoney"]'	},
+			{  name: 'HIX', selector: '[data-items="NewOrderingHix"]'	},
+			{  name: 'גברים', selector: '[data-items="NewMenOrdering"]'	},
+			{  name: 'גאווה', selector: '[data-items="OrderingPride"]'	},
+			{  name: 'נשים', selector: '[data-items="OrderingWomen"]'	},
+			{  name: 'פזם', selector: '[data-items="OrderingPzm"]'	}
+		];
+	} else if (hn == 'www.mako.co.il'){		
+		Personalization.SectionUnits = [
+			{  name: 'חדשות', selector: '[data-items="NewNewsOrdering"]'	},		
+			{  name: 'סלבס', selector: '[data-items="NewOrderingEntertainment"]'	},		
+			{  name: 'TVBee', selector: '[data-items="NewOrderingTvbee"]'	},
+			{  name: 'תרבות', selector: '[data-items="NewOrderingCulture"]'	},	
+			{  name: 'מגזין xtra', selector: '[data-items="xtraMagazineTop"]'	},	
+			{  name: 'ספורט', selector: '[data-items="NewOrderingMondial"]'	},			
+			{  name: 'תכניות קשת', selector: '[data-items="NewOrderingKeshetProg"]'	},
+			{  name: 'מוזיקה', selector: '[data-items="NewOrderingMusic"]'	},
+			{  name: 'אוכל', selector: '[data-items="NewOrderingGoodFood"]'	},			
+			{  name: 'ערב טוב עם גיא פינס', selector: '[data-items="GuyPinesHPOrdering"]'	},	
+			{  name: 'Fashion Forward', selector: '[data-items="NewOrderingFashionForward"]'	},
+			{  name: 'חופש', selector: '[data-items="NewOrderingTravel"]'	},
+			{  name: 'Living', selector: '[data-items="NewOrderingLiving"]'	},
+			{  name: 'בריאות', selector: '[data-items="NewOrderingHealth"]'	},
+			{  name: 'כסף', selector: '[data-items="NewOrderingMoney"]'	},
+			{  name: 'T5', selector: '[data-items="NewOrderingT5"]'	},
+			{  name: 'אוטו', selector: '[data-items="NewOrderingWomen"]'	},
+			{  name: 'NEXTER', selector: '[data-items="NewOrderingNexter"]'	},
+			{  name: 'משפט', selector: '[data-items="PsakDinOrdering"]'	},
+			{  name: 'HIX', selector: '[data-items="NewOrderingHix"]'	},
+			{  name: 'מגזין xtra', selector: '[data-items="xtraMagazineBottom"]'	},	
+			{  name: 'גברים', selector: '[data-items="NewMenOrdering"]'	},
+			{  name: 'נשים', selector: '[data-items="OrderingWomen"]'	},
+			{  name: 'הורים', selector: '[data-items="NewOrderingHomeAndFamily"]'	},
+			{  name: 'פזם', selector: '[data-items="OrderingPzm"]'	},
+			{  name: 'לימודים וקריירה', selector: '[data-items="NewOrderingStudy"]'	},
+			{  name: 'גאווה', selector: '[data-items="OrderingPride"]'	}
+		];
+	}else if (hn == 'mobileint.mako.co.il'){
+		Personalization.SectionUnits = [
+			{  name: 'סלידר', selector: '[data-name="default1"]'	},
+			{  name: 'בחירות', selector: '[data-name="election-magazine "]'},
+			{  name: 'חדשות', selector: '[data-name="חדשות"]'	},
+			{  name: 'מגזין סופ"ש', selector: '[data-name="magazin"]'	}, 		
+			{  name: 'mako feed', selector: '[data-name="mako feed"]'	},
+			{  name: 'סלבס', selector: '[data-name="סלבס"]'	},
+			{  name: 'makoTV', selector: '[data-name="makoTV"]'	},
+			{  name: 'תכניות קשת', selector: '[data-name="תכניות קשת"]'	},		
+			{  name: 'ספורט', selector: '[data-name="ספורט"]'	},
+			{  name: 'תרבות', selector: '[data-name="תרבות"]'	},
+			{  name: 'xtra שופינג - מגזין קניות אונליין', selector: '[data-name="מגזין אקסטרה TOP"]'	},
+			{  name: 'סיפורי היום', selector: '[data-name="סיפורי היום"]'	},
+			{  name: 'מוזיקה', selector: '[data-name="מוזיקה"]'	},
+			{  name: 'חדשות טובות', selector: '[data-name="חדשות טובות"]'	},
+			{  name: 'NEXTER', selector: '[data-name="NEXTER"]'	},			
+			{  name: 'אוכל', selector: '[data-name="אוכל"]'	},
+			{  name: 'אוטו', selector: '[data-name="אוטו"]'	},
+			{  name: 'mako Nights', selector: '[data-name="Nights"]'	},
+			{  name: 'כסף', selector: '[data-name="כסף"]'	},
+			{  name: 'Living', selector: '[data-name="LIVING"]'	},
+			{  name: 'Fashion Forward', selector: '[data-name="Fashion Forward"]'	},
+			{  name: 'בריאות', selector: '[data-name="בריאות"]'	},
+			{  name: 'הורים', selector: '[data-name="הורים / תשעה חודשים"]'	},
+			{  name: 'חופש', selector: '[data-name="חופש"]'	},
+			{  name: 'HIX', selector: '[data-name="HIX"]'	},	
+			{  name: 'xtra שופינג - מגזין קניות אונליין', selector: '[data-name="מגזין אקסטרה DOWN"]'	},	
+			{  name: 'מיוחדים', selector: '[data-name="מיוחדים"]'	},
+			{  name: 'גברים', selector: '[data-name="גברים"]'	},
+			{  name: 'כאן בונים', selector: '[data-name="כאן בונים"]'	},
+			{  name: 'לימודים וקריירה', selector: '[data-name="לימודים וקריירה"]'	},
+			{  name: 'פרקליטים', selector: '[data-name="פרקליטים"]'	},
+			{  name: 'גאווה', selector: '[data-name="גאווה"]'	},
+			{  name: 'נשים', selector: '[data-name="נשים"]'	},
+			{  name: 'פזם', selector: '[data-name="פזם"]'	},
+			{  name: 'רוח', selector: '[data-name="רוח"]'	}
+		];
+	}else if (hn == 'mobile.mako.co.il'){
+		Personalization.SectionUnits = [
+			{  name: 'סלידר', selector: '[data-name="default1"]'	},
+			{  name: 'חדשות', selector: '[data-name="חדשות"]'	},		
+			{  name: 'מגזין סופ"ש', selector: '[data-name="magazin"]'	}, 	
+			{  name: '2020done', selector: '[data-name="default2"]'	}, 	
+			{  name: 'mako feed', selector: '[data-name="mako feed"]'	},
+			{  name: 'סיפורי היום', selector: '[data-name="סיפורי היום"]'	},	
+			{  name: 'סלבס', selector: '[data-name="סלבס"]'	},
+			{  name: 'makoTV', selector: '[data-name="makoTV"]'	},
+			{  name: 'תכניות קשת', selector: '[data-name="תכניות קשת"]'	},		
+			{  name: 'ספורט', selector: '[data-name="ספורט"]'	},			
+			{  name: 'תרבות', selector: '[data-name="תרבות"]'	},
+			{  name: 'xtra שופינג - מגזין קניות אונליין', selector: '[data-name="שופינג xtra - מגזין קניות אונליין"]'	},			
+			{  name: 'מוזיקה', selector: '[data-name="מוזיקה"]'	},
+			{  name: 'NEXTER', selector: '[data-name="NEXTER"]'	},
+			{  name: 'אוטו', selector: '[data-name="אוטו"]'	},
+			{  name: 'כסף', selector: '[data-name="כסף"]'	},
+			{  name: 'Living', selector: '[data-name="LIVING"]'	},
+			{  name: 'Fashion Forward', selector: '[data-name="Fashion Forward"]'	},
+			{  name: 'בריאות', selector: '[data-name="בריאות"]'	},
+			{  name: 'הורים', selector: '[data-name="הורים / תשעה חודשים"]'	},
+			{  name: 'חופש', selector: '[data-name="חופש"]'	},
+			{  name: 'HIX', selector: '[data-name="HIX"]'	},		
+			{  name: 'מיוחדים', selector: '[data-name="מיוחדים"]'	},
+			{  name: 'גברים', selector: '[data-name="גברים"]'	},			
+			{  name: 'לימודים וקריירה', selector: '[data-name="לימודים וקריירה"]'	},
+			{  name: 'גאווה', selector: '[data-name="גאווה"]'	},
+			{  name: 'נשים', selector: '[data-name="נשים"]'	},
+			{  name: 'פזם', selector: '[data-name="פזם"]'	},
+			{  name: 'רוח', selector: '[data-name="רוח"]'	}
+		];
+	}
+	
+	Personalization.PositionTaken = [];
+	
+	try{
+		if (Personalization.SectionUnits){
+			Personalization.logTimestamp('			start');
+			Personalization.SectionOrdered = JSON.parse(P13N.reordering.get_section_order());
+			Personalization.logTimestamp('json parse done');
+			if (Personalization.SectionOrdered && Personalization.SectionOrdered.length > 0){
+				Personalization.updateSectionOrder();
+				Personalization.logTimestamp('updated order  ');
+				Personalization.reoderOnDOMReady();
+			}
+		}
+	}catch(err){
+		Personalization.logTimestamp('failed to personalize :'+err);
+	}
+}
+
+Personalization.reoderOnDOMReady = function(){
+	// check all predefined selectors that should be found on page
+	if (Personalization.notAllSelectorsFound()){
+		// call the function again after 100 milliseconds
+		setTimeout( Personalization.reoderOnDOMReady, 100 );	
+	} else if (Personalization.isOrderValidated()){
+		Personalization.logTimestamp('		dom done ');
+		// find all sections relative position
+		Personalization.orderUnitsByPosition();
+		Personalization.logTimestamp('		sort done');
+		Personalization.reorder();
+		Personalization.logTimestamp('	 reorder done');
+	}
+}
+
+Personalization.isOrderValidated = function(){
+	return Personalization.sectionsFound == Personalization.SectionUnits.length;						
+}
+
+Personalization.isAllPositionTaken = function(){
+	return Personalization.SectionUnits.length == Personalization.PositionTaken.length 
+				& Personalization.PositionTaken.filter(
+						function(a){if (a == undefined) return true;}).length == 0;
+}
+
+Personalization.orderUnitsByPosition = function(){
+	Personalization.SectionUnits = Personalization.SectionUnits.sort(function(a,b){
+		var aOffset = a.isShown ? a.obj.offset().top : 10000000;
+		var bOffset = b.isShown ? b.obj.offset().top : 10000000;		
+		return aOffset - bOffset;
+	});	
+	for (var i=0;i<Personalization.SectionUnits.length; i++){		
+		Personalization.logTimestamp('order:'+i+' -> '+Personalization.SectionUnits[i].name);
+	}
+}
+
+Personalization.updateSectionOrder = function(){
+	// remove unused sections
+	
+	Personalization.SectionOrdered = Personalization.SectionOrdered.filter( function (a){
+			for (var i=0;i<Personalization.SectionUnits.length; i++){
+				if (a.name == Personalization.SectionUnits[i].name){
+					Personalization.SectionUnits[i].calculatedOrder = a.position;
+					Personalization.PositionTaken[a.position] = true;
+					return true;
+				} 
+			}
+			return false;
+	});	
+
+}
+
+Personalization.reorder = function(){
+	// create dummies to replace later according to current position
+	for (var i=0;i<Personalization.SectionUnits.length; i++){
+		Personalization.dummies.push($('<div id="dummyP'+i+'"></div>').insertBefore(Personalization.SectionUnits[i].obj));
+		Personalization.logTimestamp('dummyP'+i+' before '+Personalization.SectionUnits[i].name);
+	}
+	
+		
+	// fill uncalculated sections
+	var indexTaken = 0;
+	for (var j=0;j<Personalization.SectionUnits.length; j++){
+		if (Personalization.SectionUnits[j].calculatedOrder == undefined){
+			while(Personalization.PositionTaken[indexTaken]){
+				indexTaken++;
+			}
+			Personalization.SectionUnits[j].calculatedOrder = indexTaken;
+			Personalization.PositionTaken[indexTaken] = true;
+		}
+		
+	}
+	
+	// validate all position taken
+	if (Personalization.isAllPositionTaken()){	
+		// swap positions
+		for (var i=0;i<Personalization.SectionUnits.length; i++){
+			Personalization.logTimestamp(Personalization.SectionUnits[i].name + ' -> ' +Personalization.SectionUnits[i].calculatedOrder);
+			if (Personalization.SectionUnits[i].calculatedOrder < Personalization.SectionUnits.length - Personalization.hiddenCount){
+				if (i != Personalization.SectionUnits[i].calculatedOrder){
+					Personalization.logTimestamp(Personalization.SectionUnits[i].name + ' moved to -> ' +Personalization.SectionUnits[i].calculatedOrder);
+					Personalization.SectionUnits[i].obj = Personalization.SectionUnits[i].obj.insertBefore(Personalization.dummies[Personalization.SectionUnits[i].calculatedOrder]);
+					Personalization.SectionUnits[i].obj.show();
+				}
+			} else {
+				Personalization.SectionUnits[i].obj.hide();
+			}
+		}
+	}
+}
+
+Personalization.notAllSelectorsFound = function(){
+	if (Personalization.sectionsFound == Personalization.SectionUnits.length || document.readyState === "complete" ){
+		return false;
+	}else{		
+		for (var i=0;i<Personalization.SectionUnits.length; i++){
+			if (!Personalization.SectionUnits[i].isFound){
+				var elm = document.querySelector(Personalization.SectionUnits[i].selector);
+				if (elm){
+					Personalization.logTimestamp('found selector:'+Personalization.SectionUnits[i].name);
+					Personalization.SectionUnits[i].isFound = true;
+					var isShown = (elm.style.display != 'none');
+					Personalization.SectionUnits[i].isShown = isShown;
+					Personalization.SectionUnits[i].obj = $(elm);
+					if (!isShown){
+						Personalization.hiddenCount++;
+					}
+					Personalization.sectionsFound++;
+				}		
+			}		
+		}
+		if (Personalization.sectionsFound == Personalization.SectionUnits.length){
+			return false;
+		}else{
+			return true;
+		}
+	}		
+}
+
+
+Personalization.init();

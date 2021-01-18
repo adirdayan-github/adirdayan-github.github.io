@@ -1,0 +1,325 @@
+﻿var BusinessClosure_GRAPH_COLORS = [
+    '#2a339b', '#95ca5a', '#db0000', '#2a939b', '#a652ba', '#0c0c0c', '#ff7300', '#ed4338', '#e85ce4', '#3d9c48'
+];
+
+// Data members.
+var _businessClosureGraphChart;
+var _businessClosureGraphData;
+var _businessClosureDates;
+
+// Graph labels.
+var Y_SPACING_CHECK = 10;
+var Y_SPACING_JUMP = 12;
+
+// Graph initialization.
+function InitializeBusinessClosureGraph(graphCanvasId) {
+
+    // Get the data from the API first.
+    $.getJSON(_businessClosureGraphUrl, function (businessClosure) {
+        // Save.
+        _businessClosureGraphData = businessClosure.data.data;
+        _businessClosureInfo = businessClosure.data.info;
+
+        // Get first and last dates.
+        var endDate = new moment();
+        endDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+        _businessClosureDates = [];
+        // Note: the new Date() for the start date it's because otherwise the start-date object will get altered. This way, it's duplicated into 'd'.
+        $.each(_businessClosureGraphData[Object.keys(_businessClosureGraphData)[0]], function (key, value) {
+            var currDate = new moment(value.date);
+            if (isGraphDateRelevant(currDate)) { // Filter.
+                _businessClosureDates.push(currDate);
+            }
+        });
+
+        // Graph.
+        var ctx = document.getElementById(graphCanvasId).getContext('2d');
+        _businessClosureGraphChart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: _businessClosureDates,
+                datasets: GetBusinessClosureData(),
+            },
+            // Configuration options go here
+            options: {
+                scaleShowValues: true,
+                aspectRatio: isMobile ? 1 : 2,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 60,
+                        top: 20,
+                        bottom: 20
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: 'rgba(12, 12, 12, 0.9)',
+                    titleAlign: 'right',
+                    bodyAlign: 'right',
+                    footerAlign: 'right',
+                    textDirection: 'rtl',
+                    displayColors: true,
+                    //multiKeyBackground: 'rgba(0,0,0,0)',
+                    mode: 'index',
+                    intersect: false,
+                    //yAlign: 'bottom',
+                    itemSort: (a, b, data) => parseInt(a.value) > parseInt(b.value) ? -1 : 1,
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            return data.datasets[tooltipItem.datasetIndex].label + ": " + parseInt(tooltipValue).toLocaleString() + "%  ";
+                        },
+                        title: function (tooltipItem, data) {
+                            return new moment(tooltipItem[0].xLabel).format("DD.MM.YY");
+                        }
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        gridLines: {
+                            color: "#d8d8d8",
+                            lineWidth: 1,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            //suggestedMin: minValue,
+                            //suggestedMax: maxValue,
+                            //stepSize: step,
+                            fontColor: "#0c0c0c",
+                            padding: 15,
+                            userCallback: function (value, index, values) {
+                                value = value.toString();
+                                value = value.split(/(?=(?:...)*$)/);
+                                value = value.join(',');
+                                return value + "%";
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            fontColor: "#0c0c0c",
+                            fontSize: 18,
+                            padding: 10,
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            maxTicksLimit: 100000,
+                            //maxRotation: 0,
+                            // Hide labels on X axis if it's not the first or last.
+                            callback: function (value, index, values) {
+                                // Get the date. Value is just the label.
+                                if (values[index]) {
+                                    var date = new moment(values[index].value);
+                                    return (index != 0 && index != (values.length - 1)) ? "" : date.format('DD.MM');
+                                }
+                            }
+                        }
+                    }],
+                    offset: true
+                },
+                // Disable points.
+                elements: {
+                    point: {
+                        //radius: 0
+                    }
+                },
+                plugins: {
+                    // Change options for ALL labels of THIS CHART
+                    datalabels: {
+                        display: false
+                    },
+                    crosshair: {
+                        line: {
+                            color: '#6e6c70',        // crosshair line color
+                            width: 1,             // crosshair line width
+                        },
+                        zoom: {
+                            enabled: false
+                        },
+                        sync: {
+                            enabled: false
+                        }
+                    }
+
+                }
+            }
+        });
+
+        // Set the font here.
+        Chart.defaults.global.defaultFontFamily = 'Yonit';
+        Chart.defaults.global.defaultFontSize = 18;
+    });
+}
+
+
+
+
+// Get a city's data.
+function GetBusinessClosureForDataset(cityName, valuePropertyName) {
+    var city = _businessClosureGraphData[cityName];
+
+    var data = [];
+    var itemDataDateIndex = 0; 
+
+    for (var i = 0; i < _businessClosureDates.length; i++) {
+        var date = _businessClosureDates[i];
+
+        // Get the relevant first date. It's by order, so every time we have a hit, the next date will be searched from there.
+        var dateData = null;
+        for (var j = itemDataDateIndex; j < city.length; j++) {
+            // Check if it's the next object.
+            if (moment(city[j].date).isSame(date)) {
+                dateData = city[j];
+
+                // Save the index for the next round.
+                itemDataDateIndex = j;
+
+                break;
+            }
+        }
+        //var dateData = GetBusinessClosureOnDate(city, date);
+
+        if (dateData) {
+            //var value = (dateData[0][valuePropertyName] / population);
+            var value = dateData["value"];
+            data.push(Math.round(value));
+        } else {
+            data.push(0);
+        }
+    }
+
+    return data;
+}
+
+function GetBusinessClosureOnDate(city, date) {
+    var dateString = date.format("YYYY-M-DD");
+    return $.grep(city, function (item) {
+        return moment(item.date).format("YYYY-M-DD") == dateString;
+    })[0];
+}
+
+
+// Get data for selected BusinessClosure.
+function GetBusinessClosureData() {
+    var datasets = [];
+    $.each(Object.keys(_businessClosureGraphData), function (key, val) {
+        if (isGraphDateRelevant(val.date)) {
+            datasets.push({
+                label: val,
+                borderColor: BusinessClosure_GRAPH_COLORS[key],
+                backgroundColor: BusinessClosure_GRAPH_COLORS[key],
+                lineTension: 0,
+                data: GetBusinessClosureForDataset(val),
+                fill: false,
+                borderWidth: 4,
+                pointRadius: 2, // Change to 0 to remove the dots.
+                pointHitRadius: isMobile ? 0 : 4
+            });
+        }
+    });
+
+    return (datasets);
+}
+
+
+
+
+/**
+ * This code draws the city name at the end of the graph.
+ */
+var lineTextWriteCount = 0;
+function drawLabelsBusinessClosure(t) {
+    // Tal's Fix: draw it only for the first line (it draws all lines in the forEach loop, but it loops for each line, making it double!).
+    if (t.index > 0) {
+        return;
+    }
+
+    if (!document.getElementById("business-closure-graph-canvas")) {
+        return;
+    }
+
+    var ctx = document.getElementById("business-closure-graph-canvas").getContext("2d");            // Only for the BusinessClosure graph!
+    if (ctx != t.chart.ctx) {       // Skip irrelevant graphs.
+        return;
+    }
+
+
+    ctx.save();
+    ctx.font = Chart.helpers.fontString(14, 'normal', Chart.defaults.global.defaultFontFamily);
+    //ctx.fillStyle = t._config.borderColor;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'end';
+
+    var chartInstance = t.chart;
+    var datasets = chartInstance.config.data.datasets;
+
+    var lastDots = [];
+
+    // Get all dots.
+    datasets.forEach(function (ds, index) {
+        var label = ds.label;
+        var meta = chartInstance.controller.getDatasetMeta(index);
+        var len = meta.data.length - 1;
+
+        lastDots.push({
+            label: label,
+            y: meta.data[len]._model.y,
+            x: meta.data[len]._model.x + 10,
+            color: ds.borderColor,
+        });
+    });
+
+    // Order by y.
+    lastDots.sort((a, b) => (a.y > b.y) ? -1 : 1);
+
+    var labelsLocations = [];
+    lastDots.forEach(function (value) {
+        // Get the Y location.
+        var y = value.y;
+        var yLocationOk = false;
+
+        // Check if there's existing label in the current location, and move up accordingly.
+        while (!yLocationOk) {
+            yLocationOk = true;
+            $.each(labelsLocations, function (key, currY) {
+                if ((y <= (currY + Y_SPACING_CHECK)) && (y >= (currY - Y_SPACING_CHECK))) {
+                    yLocationOk = false;
+                    y = currY - Y_SPACING_JUMP;
+                }
+            });
+        }
+
+        labelsLocations.push(y);
+
+        ctx.fillStyle = value.color;
+        ctx.fillText(value.label, value.x, y);
+        //console.log(value.x, y, value.label);
+    });
+    ctx.restore();
+}
+
+var originalController4 = Chart.controllers.line;
+Chart.controllers.line = Chart.controllers.line.extend({
+    draw: function (e) {
+        originalController4.prototype.draw.call(this, arguments);
+        drawLabelsBusinessClosure(this);
+    }
+});
+/**
+ * END: This code draws the city name at the end of the graph.
+ */

@@ -1,0 +1,345 @@
+﻿// Consts.
+var citiesCasesLatelyListElement = $(".cities-cases-lately-selection-list");
+var citiesCasesLatelySelectedListElement = $(".cities-cases-lately-selected-list");
+
+var CITIES_CASES_LATELY_GRAPH_COLORS = [
+    '#2a339b', '#95ca5a', '#db0000', '#2a939b', '#a652ba', '#0c0c0c', '#ff7300', '#ed4338', '#e85ce4', '#3d9c48'
+];
+
+// Data members.
+var _citiesCasesLatelyGraphChart;
+var _selectedCitiesCasesLately;
+var _citiesCasesLatelyGraphData;
+var _citiesCasesLatelyGraphInfo;
+
+var _citiesCasesLatelyGraphDomObject = $("#cities-cases-lately");
+
+// Graph labels.
+var Y_SPACING_CHECK = 10;
+var Y_SPACING_JUMP = 12;
+
+// Init.
+$(document).ready(function () {
+    // Open city popup.
+    $("#add-cities-cases-lately-to-graph").click(function () {
+        // Clean selections.
+        ClearCitiesCasesLatelySelection();
+
+        // Clear text filter.
+        $("#cities-cases-lately-search").val("");
+        $("#cities-cases-lately-search").trigger("input");
+
+        // Selected the previously selected.
+        $.each(_selectedCitiesCasesLately, function (key, value) {
+            citiesCasesLatelyListElement.find('li input[data-id="' + escapeStr(value) + '"]').click();
+            //console.log(citiesCasesLatelyListElement.find("li input[data-id='" + value + "']"));
+        });
+
+        // Show.
+        $(".cities-cases-lately-modal").show();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה על הוסף עיר חולים חדשים');
+    });
+
+    // Close button.
+    $(".btn-close-graph-filters-modal").click(function () {
+        $(".graph-filters-modal").hide();
+    });
+
+    // Clear button.
+    $(".clear-cities-cases-lately-list").click(function () {
+        ClearCitiesCasesLatelySelection();
+    });
+
+    // Search filter.
+    $("#cities-cases-lately-search").on("input", function () {
+        var searchTerm = $(this).val();
+
+        // Force 2 characters minimum.
+        if (searchTerm.length <= 2) {
+            citiesCasesLatelyListElement.find("li:not(.template)").removeClass("d-none");
+        } else {
+            citiesCasesLatelyListElement.find("li:not(.template)").addClass("d-none");
+            citiesCasesLatelyListElement.find("li[data-name*='" + searchTerm + "']:not(.template)").removeClass("d-none");
+        }
+    });
+
+    // Approve button.
+    $(".cities-cases-lately-modal .graph-filters-dialog-submit").click(function () {
+
+        if (citiesCasesLatelyListElement.find("input:checked").length < 2) {
+            alert("בחרו 2 ערים לפחות");
+            return false;
+        } else {
+            // Select the cities.
+            var vals = $.map(citiesCasesLatelyListElement.find("input:checked"), function (li) {
+                return $(li).attr("data-id");
+            });
+
+
+            // Refresh graph.
+            RefreshCitiesCasesLatelyGraph(vals);
+
+            $(".graph-filters-modal").hide();
+
+            ga('send', 'event', 'Corona Virus', 'לחיצה לאישור בחירת עיר חולים חדשים');
+
+            $.each(citiesCasesLatelyListElement.find("input:checked"), function (key, val) {
+                ga('send', 'event', 'Corona Virus', 'בחירת עיר חולים חדשים', $(val).attr("data-name"));
+            });
+        }
+
+    });
+});
+
+// Gets the selected type (from the radio-button).
+function GetCurrentCitiesCasesLatelyGraphType() {
+    return $("input[name='cities-cases-lately-graph-type']:checked").val();
+}
+
+function GetCityCasesLatelyPopulation(cityName) {
+    var country = $.grep(_citiesCasesLatelyGraphInfo, function (item) {
+        return item.name === cityName;
+    });
+
+    if (country.length) {
+        return country[0].population;
+    } else {
+        return null;
+    }
+}
+
+function GetCityCasesLatelyByName(cityName) {
+    var country = $.grep(_citiesCasesLatelyGraphInfo, function (item) {
+        return item.name === cityName;
+    });
+
+    if (country.length) {
+        return country[0];
+    } else {
+        return null;
+    }
+}
+
+function GetCityCasesLatelyById(id) {
+
+    var country = $.grep(_citiesCasesLatelyGraphInfo, function (item) {
+        return item.ids.includes(id);
+    });
+
+    if (country.length) {
+        return country[0].name;
+    } else {
+        return null;
+    }
+}
+
+function ClearCitiesCasesLatelySelection() {
+    citiesCasesLatelySelectedListElement.find('li:not(.template)').remove();
+    citiesCasesLatelyListElement.find('li input:checkbox').prop('checked', false).parent().removeClass("checked");
+}
+
+// Add the cities to the cities search filter.
+function InitializeCitiesCasesLatelySearchFilter() {
+    var templateObject = citiesCasesLatelyListElement.find("li.d-none");
+
+    $.each(Object.keys(_citiesCasesLatelyGraphData), function (key, val) {
+        // Get the city hebrew name. If it doesn't exist, skip it.
+        var hebrewName = val;
+
+        if (hebrewName) {
+            var item = templateObject.clone().removeClass("d-none").removeClass("template");
+            item.attr('data-id', val).attr('data-name', hebrewName);
+            item.find('.brand-control-checkbox-title').html(hebrewName);
+            item.find("input:checkbox").attr('data-id', val)
+                .attr('data-name', hebrewName);
+
+            citiesCasesLatelyListElement.append(item);
+
+            // When the state is change, work accordingly.
+            item.find("input:checkbox").change(function (e) {
+                // Add checked class to parent because there was a freakin' iOS 13 bug.
+                $(this).parent().toggleClass("checked", $(this).is(":checked"));
+
+                if ($(this).is(":checked")) {
+                    // Check if more than the max.
+                    if (citiesCasesLatelyListElement.find("input:checked").length > _maximumCitiesInCitiesCasesLatelyGraph) {
+                        // Prevent the selection.
+                        $(this).prop("checked", false);
+                        alert("לא ניתן לסמן יותר מ-" +
+                            _maximumCitiesInCitiesCasesLatelyGraph +
+                            " ערים.\nיש להסיר עיר על-מנת להוסיף אחת חדשה.");
+                        return false;
+                        // check if selected less then 2
+                    }
+                }
+
+
+                ToggleSelectedCitiesLatelyCases($(this).attr("data-id"), $(this).attr("data-name"), !$(this).is(":checked"));
+            });
+        }
+    });
+
+
+    // Sort the list.
+    citiesCasesLatelyListElement.find("li").sort(sort_li) // sort elements
+        .appendTo(citiesCasesLatelyListElement); // append again to the list
+    // sort function callback
+    function sort_li(a, b) {
+        return ($(b).data('name')) < ($(a).data('name')) ? 1 : -1;
+    }
+
+}
+
+function ToggleSelectedCitiesLatelyCases(cityValue, cityName, remove) {
+    if (remove) {
+        // Remove.
+        citiesCasesLatelySelectedListElement.find("li[data-id='" + cityValue + "']").remove();
+    } else {
+        // Add.
+        var templateObject = citiesCasesLatelySelectedListElement.find("li.d-none");
+        var item = templateObject.clone().removeClass("d-none").removeClass("template");
+        item.attr('data-id', cityValue).find('.brand-control-checkbox-title').html(cityName);
+        item.find('.brand-control-checkbox-label').addClass('checked');     // Add checked class to parent because there was a freakin' iOS 13 bug.
+        citiesCasesLatelySelectedListElement.append(item);
+
+        // If unchecked, it removes itself.
+        item.find("input:checkbox").change(function () {
+            var currItem = $(this).closest("li");
+
+            // Remove the selection from the other checkbox too.
+            citiesCasesLatelyListElement.find('li input[data-id="' + currItem.attr("data-id") + '"]').prop("checked", false).parent().removeClass("checked");
+
+            currItem.remove();
+        });
+    }
+}
+
+
+// Graph initialization.
+function InitializeCitiesCasesLatelyGraph() {
+
+    // Get the data from the API first.
+    $.getJSON(_citiesGraphUrl, function (cities) {
+        // Save.
+        _citiesCasesLatelyGraphData = cities.data.data;
+        _citiesCasesLatelyGraphInfo = cities.data.info;
+
+        console.log(_citiesCasesLatelyGraphData);
+
+        // Add the normal-cases.
+        for (var i = 0; i < _citiesCasesLatelyGraphInfo.length; i++) {
+            _citiesCasesLatelyGraphInfo[i]['cases'] = _citiesCasesLatelyGraphInfo[i].recovered; //_citiesCasesLatelyGraphInfo[i].lately;
+            _citiesCasesLatelyGraphInfo[i]['normalcases'] = Math.round((_citiesCasesLatelyGraphInfo[i].recovered / _citiesCasesLatelyGraphInfo[i].population) * 10000); //Math.round((_citiesCasesLatelyGraphInfo[i].lately / _citiesCasesLatelyGraphInfo[i].population) * 10000);
+        }
+
+        // Get default cities' names.
+        var defaultCities = [];
+        $.each(_citiesCasesLatelyGraphDefaultCities, function (key, val) {
+            defaultCities.push(GetCityCasesLatelyById(val));
+        });
+
+        InitializeCitiesCasesLatelySearchFilter();
+
+        // Get first and last dates.
+        var endDate = new moment();
+        endDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+
+        // Draw graph.
+        RefreshCitiesCasesLatelyGraph(defaultCities);
+    });
+}
+
+
+// Refreshes the graph.
+function RefreshCitiesCasesLatelyGraph(citiesList) {
+    // Save as selected.
+    _selectedCitiesCasesLately = citiesList;
+
+    // Remove old and get a template.
+    _citiesCasesLatelyGraphDomObject.find(".horizontal-bar-item:not(.d-none)").remove();
+    var template = _citiesCasesLatelyGraphDomObject.find(".horizontal-bar-item.d-none");
+
+    // Get the cities and add them.
+    if (citiesList.length > 0) {
+        var allCities = [];
+        $.each(_selectedCitiesCasesLately, function (key, cityName) {
+            allCities.push(GetCityCasesLatelyByName(cityName));
+        });
+
+        var casesType = GetCurrentCitiesCasesLatelyGraphType();
+
+        // Order by the biggest to lowest.
+        allCities = allCities.sort((a, b) => (a[casesType] < b[casesType]) ? 1 : ((b[casesType] < a[casesType]) ? -1 : 0));
+
+        // Get the max value, so every bar length is relative to it.
+        var maxValue = allCities[0][casesType];
+
+        // Now add the bars.
+        $.each(allCities, function (key, city) {
+            var width;
+            if (maxValue > 0) {
+                width = ((city[casesType] / maxValue) * 100);
+            } else {
+                width = 0;
+            }
+
+            // Duplicate the item.
+            var cityItem = template.clone().removeClass("d-none");
+
+            console.log(city);
+
+            // Get positive-tests percentage.
+            var positiveTestsPercentage = city["tests"]; //parseInt((city["cases"] / city["tests"]) * 100);
+            var positiveTestsWidth = 0; 
+
+            if (positiveTestsPercentage >= 1) {
+                // Calculate the positive tests width, out of the bar's width.
+                positiveTestsWidth = (width * ((positiveTestsPercentage * 1) / 100));       // Change the *1 to make it wider.
+
+                if (positiveTestsPercentage >= 18) {
+                    cityItem.find(".progress-bar.progress-bar-tests").addClass("big-number");
+                }
+            } else {
+                cityItem.find(".progress-bar.progress-bar-tests").hide();
+            }
+
+            // And fix the width to be the difference.
+            width -= positiveTestsWidth;
+
+            cityItem.find(".horizontal-bar-title").html(city.name);
+            cityItem.find(".progress-bar .cases-value").html(numberWithCommas(city[casesType]));
+            cityItem.find(".progress-bar .tests-value").html(positiveTestsPercentage + "%");
+            cityItem.find(".progress-bar.progress-bar-tests").width(positiveTestsWidth + "%");
+            cityItem.find(".progress-bar.progress-bar-cases").width(width + "%");
+            //.css("background-color", CITIES_CASES_LATELY_GRAPH_COLORS[key]);
+
+            _citiesCasesLatelyGraphDomObject.find(".horizontal-bars-graph-inner").append(cityItem);
+        });
+    }
+}
+
+
+// Types' radio-buttons.
+$("input[name='cities-cases-lately-graph-type']").change(function () {
+    RefreshCitiesCasesLatelyGraph(_selectedCitiesCasesLately);
+
+    ga('send', 'event', 'Corona Virus', 'גרף חולים חדשים לפי יישובים: הקלקה על ' + $(this).attr("data-name"));
+});
+
+function numberWithCommas(x) {
+    if (!x) {
+        return x;
+    }
+
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+function escapeStr(str) {
+    if (str)
+        return str.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+
+    return str;
+}

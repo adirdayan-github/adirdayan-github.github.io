@@ -1,0 +1,612 @@
+﻿// Consts.
+var citiesListElement = $(".cities-selection-list");
+var citiesSelectedListElement = $(".cities-selected-list");
+
+var cities_GRAPH_COLORS = [
+    '#2a339b', '#95ca5a', '#db0000', '#2a939b', '#a652ba', '#0c0c0c', '#ff7300', '#ed4338', '#e85ce4', '#3d9c48'
+];
+
+// Data members.
+var _citiesGraphChart;
+var _selectedcities;
+var _citiesGraphData;
+var _citiesDates;
+
+// Graph labels.
+var Y_SPACING_CHECK = 10;
+var Y_SPACING_JUMP = 12;
+
+// Init.
+$(document).ready(function () {
+    // Open city popup.
+    $("#add-city-to-graph").click(function () {
+        // Clean selections.
+        ClearCitiesSelection();
+
+        // Clear text filter.
+        $("#city-search").val("");
+        $("#city-search").trigger("input");
+
+        // Selected the previously selected.
+        $.each(_selectedcities, function (key, value) {
+            citiesListElement.find("li input[data-id='" + value + "']").click();
+            //console.log(citiesListElement.find("li input[data-id='" + value + "']"));
+        });
+
+        // Show.
+        $(".cities-modal").show();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה על הוסף עיר');
+    });
+
+    // Close button.
+    $(".btn-close-graph-filters-modal").click(function () {
+        $(".graph-filters-modal").hide();
+    });
+
+    // Clear button.
+    $(".clear-cities-list").click(function () {
+        ClearCitiesSelection();
+    });
+
+    // Search filter.
+    $("#city-search").on("input", function () {
+        var searchTerm = $(this).val();
+
+        // Force 2 characters minimum.
+        if (searchTerm.length <= 2) {
+            citiesListElement.find("li:not(.template)").removeClass("d-none");
+        } else {
+            citiesListElement.find("li:not(.template)").addClass("d-none");
+            citiesListElement.find("li[data-name*='" + searchTerm + "']:not(.template)").removeClass("d-none");
+        }
+    });
+
+    // Approve button.
+    $(".cities-modal .graph-filters-dialog-submit").click(function () {
+        // Select the cities.
+        var vals = $.map(citiesListElement.find("input:checked"), function (li) {
+            return $(li).attr("data-id");
+        });
+
+        UpdateGraphCities(vals);
+
+        $(".graph-filters-modal").hide();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה לאישור בחירת עיר');
+
+        $.each(citiesListElement.find("input:checked"), function (key, val) {
+            ga('send', 'event', 'Corona Virus', 'בחירת עיר', $(val).attr("data-name"));
+        });
+
+    });
+
+
+
+    // Types' radio-buttons.
+    $("input[name='city-graph-type']").change(function () {
+        UpdateGraphCities(_selectedcities);
+
+        ga('send', 'event', 'Corona Virus', 'הקלקה על ' + $(this).attr("data-name"));
+    });
+});
+
+
+function GetCityPopulation(cityName) {
+    var country = $.grep(_citiesInfo, function (item) {
+        return item.name === cityName;
+    });
+
+    if (country.length) {
+        return country[0].population;
+    } else {
+        return null;
+    }
+}
+
+function GetCityByName(cityName) {
+    var country = $.grep(_citiesInfo, function (item) {
+        return item.name === cityName;
+    });
+
+    if (country.length) {
+        return country[0];
+    } else {
+        return null;
+    }
+}
+
+function GetCityById(id) {
+
+    var country = $.grep(_citiesInfo, function (item) {
+        return item.ids.includes(id);
+    });
+
+    if (country.length) {
+        return country[0].name;
+    } else {
+        return null;
+    }
+}
+
+function ClearCitiesSelection() {
+    citiesSelectedListElement.find('li:not(.template)').remove();
+    citiesListElement.find('li input:checkbox').prop('checked', false).parent().removeClass("checked");
+}
+
+// Add the cities to the cities search filter.
+function InitializeCitiesSearchFilter() {
+    var templateObject = citiesListElement.find("li.d-none");
+
+    $.each(Object.keys(_citiesGraphData), function (key, val) {
+        // Get the city hebrew name. If it doesn't exist, skip it.
+        var hebrewName = val;
+
+        if (hebrewName) {
+            var item = templateObject.clone().removeClass("d-none").removeClass("template");
+            item.attr('data-id', val).attr('data-name', hebrewName);
+            item.find('.brand-control-checkbox-title').html(hebrewName);
+            item.find("input:checkbox").attr('data-id', val)
+                .attr('data-name', hebrewName);
+
+            citiesListElement.append(item);
+
+            // When the state is change, work accordingly.
+            item.find("input:checkbox").change(function (e) {
+                // Add checked class to parent because there was a freakin' iOS 13 bug.
+                $(this).parent().toggleClass("checked", $(this).is(":checked"));
+
+                if ($(this).is(":checked")) {
+                    // Check if more than the max.
+                    if (citiesListElement.find("input:checked").length > _maximumCitiesInCityGraph) {
+                        // Prevent the selection.
+                        $(this).prop("checked", false);
+                        alert("לא ניתן לסמן יותר מ-" +
+                            _maximumCitiesInCityGraph +
+                            " מדינות.\nיש להסיר מדינה על-מנת להוסיף אחת חדשה.");
+                        return false;
+                    }
+                }
+
+                ToggleSelectedCity($(this).attr("data-id"), $(this).attr("data-name"), !$(this).is(":checked"));
+            });
+        }
+    });
+
+
+    // Sort the list.
+    citiesListElement.find("li").sort(sort_li) // sort elements
+        .appendTo(citiesListElement); // append again to the list
+    // sort function callback
+    function sort_li(a, b) {
+        return ($(b).data('name')) < ($(a).data('name')) ? 1 : -1;
+    }
+
+}
+
+function ToggleSelectedCity(cityValue, cityName, remove) {
+    if (remove) {
+        // Remove.
+        citiesSelectedListElement.find("li[data-id='" + cityValue + "']").remove();
+    } else {
+        // Add.
+        var templateObject = citiesSelectedListElement.find("li.d-none");
+        var item = templateObject.clone().removeClass("d-none").removeClass("template");
+        item.attr('data-id', cityValue).find('.brand-control-checkbox-title').html(cityName);
+        item.find('.brand-control-checkbox-label').addClass('checked');     // Add checked class to parent because there was a freakin' iOS 13 bug.
+        citiesSelectedListElement.append(item);
+
+        // If unchecked, it removes itself.
+        item.find("input:checkbox").change(function () {
+            var currItem = $(this).closest("li");
+
+            // Remove the selection from the other checkbox too.
+            citiesListElement.find("li input[data-id='" + currItem.attr("data-id") + "']").prop("checked", false).parent().removeClass("checked");
+
+            currItem.remove();
+        });
+    }
+}
+
+
+// Graph initialization.
+function InitializeCitiesGraph(graphCanvasId) {
+
+    // Get the data from the API first.
+    $.getJSON(_citiesGraphUrl, function (cities) {
+        // Save.
+        _citiesGraphData = cities.data.data;
+        _citiesInfo = cities.data.info;
+
+        // Get default cities' names.
+        var defaultCities = [];
+        $.each(_citiesGraphDefaultCities, function (key, val) {
+            defaultCities.push(GetCityById(val));
+        });
+
+        InitializeCitiesSearchFilter();
+
+        // Get first and last dates.
+        var endDate = new moment();
+        endDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+        _citiesDates = [];
+        // Note: the new Date() for the start date it's because otherwise the start-date object will get altered. This way, it's duplicated into 'd'.
+        $.each(_citiesGraphData[Object.keys(_citiesGraphData)[0]], function (key, value) {
+            var currDate = new moment(value.date);
+            if (isGraphDateRelevant(currDate)) { // Filter.
+                _citiesDates.push(currDate);
+            }
+        });
+
+        // Graph.
+        var ctx = document.getElementById(graphCanvasId).getContext('2d');
+        _citiesGraphChart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: _citiesDates,
+                datasets: GetCitiesData(defaultCities),
+            },
+            // Configuration options go here
+            options: {
+                animation: false,
+                scaleShowValues: true,
+                aspectRatio: isMobile ? 1 : 2,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 60,
+                        top: 20,
+                        bottom: (isMobile ? 0 : 60)
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: 'rgba(12, 12, 12, 0.9)',
+                    titleAlign: 'right',
+                    bodyAlign: 'right',
+                    footerAlign: 'right',
+                    textDirection: 'rtl',
+                    displayColors: true,
+                    //multiKeyBackground: 'rgba(0,0,0,0)',
+                    mode: 'index',
+                    intersect: false,
+                    //yAlign: 'bottom',
+                    itemSort: (a, b, data) => parseInt(a.value) > parseInt(b.value) ? -1 : 1,
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            return data.datasets[tooltipItem.datasetIndex].label + ": " + parseInt(tooltipValue).toLocaleString() + "  ";
+                        },
+                        title: function (tooltipItem, data) {
+                            return new moment(tooltipItem[0].xLabel).format("DD.MM.YY");
+                        }
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        gridLines: {
+                            color: "#d8d8d8",
+                            lineWidth: 1,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            //suggestedMin: minValue,
+                            //suggestedMax: maxValue,
+                            //stepSize: step,
+                            fontColor: "#0c0c0c",
+                            padding: 15,
+                            userCallback: function (value, index, values) {
+                                value = parseInt(value);
+                                value = value.toString();
+                                value = value.split(/(?=(?:...)*$)/);
+                                value = value.join(',');
+                                return value;
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            fontColor: "#0c0c0c",
+                            fontSize: 18,
+                            padding: 10,
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            maxTicksLimit: 100000,
+                            //maxRotation: 0,
+                            // Hide labels on X axis if it's not the first or last.
+                            callback: function (value, index, values) {
+                                // Get the date. Value is just the label.
+                                if (values[index]) {
+                                    var date = new moment(values[index].value);
+
+                                    //if (date.date() == 1) {
+                                    //    return date.format('DD.MM.YY');
+                                    //}
+
+                                    return (index != 0 && index != (values.length - 1)) ? "" : date.format('DD.MM.YY');
+                                }
+                            },
+                            min: new moment(_citiesGraphZoomStartDate, "MM.DD.YY")
+                        }
+                    }],
+                    offset: true
+                },
+                // Disable points.
+                elements: {
+                    point: {
+                        //radius: 0
+                    }
+                },
+                plugins: {
+                    // Change options for ALL labels of THIS CHART
+                    datalabels: {
+                        display: false
+                    },
+                    crosshair: {
+                        line: {
+                            color: '#6e6c70',        // crosshair line color
+                            width: 1,             // crosshair line width
+                        },
+                        zoom: {
+                            enabled: false
+                        },
+                        sync: {
+                            enabled: false
+                        }
+                    },
+                    zoom: {
+                        // Container for pan options
+                        pan: {
+                            // Boolean to enable panning
+                            enabled: true,
+
+                            // Panning directions. Remove the appropriate direction to disable
+                            // Eg. 'y' would only allow panning in the y direction
+                            // A function that is called as the user is panning and returns the
+                            // available directions can also be used:
+                            //   mode: function({ chart }) {
+                            //     return 'xy';
+                            //   },
+                            mode: 'x',
+                            rangeMin: {
+                            //    // Format of min pan range depends on scale type
+                            //    x: "09.24.20",
+                                x: _citiesDates[0].valueOf(),           // Unix timecode, god knows why...
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: _citiesDates[_citiesDates.length - 1].valueOf(),           // Unix timecode, god knows why...
+                            }
+
+                            // On category scale, factor of pan velocity
+                            //speed: 20,
+
+                            // Minimal pan distance required before actually applying pan
+                            //threshold: 10,
+                        },
+
+                        // Container for zoom options
+                        zoom: {
+                            // Boolean to enable zooming
+                            enabled: true,
+                            mode: 'x',
+                            rangeMin: {
+                                //    // Format of min pan range depends on scale type
+                                //    x: "09.24.20",
+                                x: _citiesDates[0].valueOf(),           // Unix timecode, god knows why...
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: _citiesDates[_citiesDates.length - 1].valueOf(),           // Unix timecode, god knows why...
+                            }
+                        }
+                    }
+
+                }
+            }
+        });
+
+        // Set the font here.
+        Chart.defaults.global.defaultFontFamily = 'Yonit';
+        Chart.defaults.global.defaultFontSize = 18;
+    });
+}
+
+
+
+
+// Get a city's data.
+function GetCitiesForDataset(cityName, valuePropertyName) {
+    var city = _citiesGraphData[cityName];
+    //var population = GetCityPopulation(cityName);
+    
+    var data = [];
+    var cityDataDateIndex = 0; 
+    for (var i = 0; i < _citiesDates.length; i++) {
+        var date = _citiesDates[i];
+
+        // Get the relevant first date. It's by order, so every time we have a hit, the next date will be searched from there.
+        var dateData = null;
+        for (var j = cityDataDateIndex; j < city.length; j++) {
+            // Check if it's the next object.
+            if (moment(city[j].date).isSame(date)) {
+                dateData = city[j];
+
+                // Save the index for the next round.
+                cityDataDateIndex = j;
+
+                break;
+            }
+        }
+        //var dateData = GetCityOnDate(city, date);
+
+        if (dateData) {
+            //var value = (dateData[0][valuePropertyName] / population);
+            var value = dateData[valuePropertyName];
+            data.push(Math.round(value));
+        } else {
+            data.push(0);
+        }
+    }
+    
+    return data;
+}
+
+function GetCityOnDate(city, date) {
+    return $.grep(city, function (item) {
+        return (moment(item.date).isSame(date));
+    })[0];
+}
+
+
+// Gets the selected type (from the radio-button).
+function GetCurrentCitiesGraphType() {
+    return $("input[name='city-graph-type']:checked").val();
+}
+
+
+// Get data for selected cities.
+function GetCitiesData(citiesNames) {
+    // Save the list of cities.
+    _selectedcities = citiesNames;
+    var datasets = [];
+    var graphType = GetCurrentCitiesGraphType();
+    $.each(_selectedcities, function (key, val) {
+        datasets.push({
+            label: val,
+            borderColor: cities_GRAPH_COLORS[key],
+            backgroundColor: cities_GRAPH_COLORS[key],
+            lineTension: 0,
+            data: GetCitiesForDataset(val, graphType),
+            fill: false,
+            borderWidth: 4,
+            pointRadius: 2,         // Change to 0 to remove the dots.
+            pointHitRadius: isMobile ? 0 : 4
+        });
+    });
+
+    return (datasets);
+}
+
+
+// Updates the list of cities in the graph.
+function UpdateGraphCities(citiesNames) {
+    _citiesGraphChart.data.datasets = GetCitiesData(citiesNames);
+    _citiesGraphChart.update();
+}
+
+
+
+/**
+ * This code draws the city name at the end of the graph.
+ */
+var lineTextWriteCount = 0;
+function drawLabelsCities(t) {
+    // Tal's Fix: draw it only for the first line (it draws all lines in the forEach loop, but it loops for each line, making it double!).
+    if (t.index > 0) {
+        return;
+    }
+
+    if (!document.getElementById("line-cities-graph-canvas")) {
+        return;
+    }
+
+    var ctx = document.getElementById("line-cities-graph-canvas").getContext("2d");            // Only for the cities graph!
+    if (ctx != t.chart.ctx) {       // Skip irrelevant graphs.
+        return;
+    }
+
+
+    ctx.save();
+    ctx.font = Chart.helpers.fontString(14, 'normal', Chart.defaults.global.defaultFontFamily);
+    //ctx.fillStyle = t._config.borderColor;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'end';
+
+    var chartInstance = t.chart;
+    var datasets = chartInstance.config.data.datasets;
+
+    var lastDots = [];
+
+    // Get last X index.
+    var lastValue = chartInstance.scales["x-axis-0"].ticks[chartInstance.scales["x-axis-0"].ticks.length - 1];
+    var lastDate = new moment(lastValue, 'DD.MM.YY').valueOf();
+
+    // Find closest point.
+    var closestPointIndex = 0;
+    for (var i = 1; i < chartInstance.data.labels.length; i++) {
+        if (chartInstance.data.labels[i].valueOf() <= lastDate) {
+            closestPointIndex = i;
+        } else {
+            break;
+        }
+    }
+
+    // Get all dots.
+    datasets.forEach(function (ds, index) {
+        var label = ds.label;
+        var meta = chartInstance.controller.getDatasetMeta(index);
+        //var len = meta.data.length - 1;
+
+        lastDots.push({
+            label: label,
+            y: meta.data[closestPointIndex - 1]._model.y,
+            x: chartInstance.controller.scales["x-axis-0"].right + 5,
+            color: ds.borderColor,
+        });
+    });
+
+    // Order by y.
+    lastDots.sort((a, b) => (a.y > b.y) ? -1 : 1);
+
+    var labelsLocations = [];
+    lastDots.forEach(function (value) {
+        // Get the Y location.
+        var y = value.y;
+        var yLocationOk = false;
+
+        // Check if there's existing label in the current location, and move up accordingly.
+        while (!yLocationOk) {
+            yLocationOk = true;
+            $.each(labelsLocations, function (key, currY) {
+                if ((y <= (currY + Y_SPACING_CHECK)) && (y >= (currY - Y_SPACING_CHECK))) {
+                    yLocationOk = false;
+                    y = currY - Y_SPACING_JUMP;
+                }
+            });
+        }
+
+        labelsLocations.push(y);
+
+        ctx.fillStyle = value.color;
+        ctx.fillText(value.label, value.x, y);
+        //console.log(value.x, y, value.label);
+    });
+    ctx.restore();
+}
+
+var originalController2 = Chart.controllers.line;
+Chart.controllers.line = Chart.controllers.line.extend({
+    draw: function (e) {
+        originalController2.prototype.draw.call(this, arguments);
+        drawLabelsCities(this);
+    }
+});
+/**
+ * END: This code draws the city name at the end of the graph.
+ */

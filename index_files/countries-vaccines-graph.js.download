@@ -1,0 +1,350 @@
+﻿// Consts.
+var countriesVaccinesListElement = $(".countries-vaccines-selection-list");
+var countriesVaccinesSelectedListElement = $(".countries-vaccines-selected-list");
+
+var COUNTRIES_VACCINES_GRAPH_COLORS = [
+    '#2a339b', '#95ca5a', '#db0000', '#2a939b', '#a652ba', '#0c0c0c', '#ff7300', '#ed4338', '#e85ce4', '#3d9c48'
+];
+
+// Data members.
+var _countriesVaccinesGraphChart;
+var _selectedCountriesVaccines;
+var _countriesVaccinesGraphInfo;
+
+var _countriesVaccinesGraphDomObject = $("#countries-vaccines");
+
+// Graph labels.
+var Y_SPACING_CHECK = 10;
+var Y_SPACING_JUMP = 12;
+
+// Init.
+$(document).ready(function () {
+    // Open country popup.
+    $("#add-countries-vaccines-to-graph").click(function () {
+        // Clean selections.
+        ClearCountriesVaccinesSelection();
+
+        // Clear text filter.
+        $("#countries-vaccines-search").val("");
+        $("#countries-vaccines-search").trigger("input");
+
+        // Selected the previously selected.
+        $.each(_selectedCountriesVaccines, function (key, value) {
+            countriesVaccinesListElement.find('li input[data-id="' + escapeStr(value) + '"]').click();
+            //console.log(countriesVaccinesListElement.find("li input[data-id='" + value + "']"));
+        });
+
+        // Show.
+        $(".countries-vaccines-modal").show();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה על הוסף מדינה מתחסנים נגד קורונה בעולם');
+    });
+
+    // Close button.
+    $(".btn-close-graph-filters-modal").click(function () {
+        $(".graph-filters-modal").hide();
+    });
+
+    // Clear button.
+    $(".clear-countries-vaccines-list").click(function () {
+        ClearCountriesVaccinesSelection();
+    });
+
+    // Search filter.
+    $("#countries-vaccines-search").on("input", function () {
+        var searchTerm = $(this).val();
+
+        // Force 2 characters minimum.
+        if (searchTerm.length <= 2) {
+            countriesVaccinesListElement.find("li:not(.template)").removeClass("d-none");
+        } else {
+            countriesVaccinesListElement.find("li:not(.template)").addClass("d-none");
+            countriesVaccinesListElement.find("li[data-name*='" + searchTerm + "']:not(.template)").removeClass("d-none");
+        }
+    });
+
+    // Approve button.
+    $(".countries-vaccines-modal .graph-filters-dialog-submit").click(function () {
+
+        if (countriesVaccinesListElement.find("input:checked").length < 2) {
+            alert("בחרו 2 ערים לפחות");
+            return false;
+        } else {
+            // Select the countries.
+            var vals = $.map(countriesVaccinesListElement.find("input:checked"), function (li) {
+                return $(li).attr("data-id");
+            });
+
+            // Refresh graph.
+            RefreshCountriesVaccinesGraph(vals);
+
+            $(".graph-filters-modal").hide();
+
+            ga('send', 'event', 'Corona Virus', 'לחיצה לאישור בחירת מדינה מתחסנים נגד קורונה בעולם');
+
+            $.each(countriesVaccinesListElement.find("input:checked"), function (key, val) {
+                ga('send', 'event', 'Corona Virus', 'בחירת מדינה מתחסנים נגד קורונה בעולם', $(val).attr("data-name"));
+            });
+        }
+
+    });
+});
+
+// Gets the selected type (from the radio-button).
+function GetCurrentCountriesVaccinesGraphType() {
+    return $("input[name='countries-vaccines-graph-type']:checked").val();
+}
+
+function GetCountryVaccinesPopulation(countryName) {
+    var country = $.grep(_countriesVaccinesGraphInfo, function (item) {
+        return item.hebrewName === countryName;
+    });
+
+    if (country.length) {
+        return country[0].population;
+    } else {
+        return null;
+    }
+}
+
+function GetCountryVaccinesByName(countryName) {
+    var country;
+    $.each(_countriesVaccinesGraphInfo, function (key, item) {
+        if (item.hebrewName === countryName) {
+            country = item;
+            return;
+        }
+    });
+
+    if (country) {
+        return country;
+    } else {
+        return null;
+    }
+}
+
+function GetCountryVaccinesById(id) {
+    var country;
+    $.each(_countriesVaccinesGraphInfo, function (key, value) {
+        
+        if (parseInt(key) === id) {
+            country = value;
+            return;
+        }
+    });
+
+    if (country) {
+        return country.hebrewName;
+    } else {
+        return null;
+    }
+}
+
+function ClearCountriesVaccinesSelection() {
+    countriesVaccinesSelectedListElement.find('li:not(.template)').remove();
+    countriesVaccinesListElement.find('li input:checkbox').prop('checked', false).parent().removeClass("checked");
+}
+
+// Add the countries to the countries search filter.
+function InitializeCountriesVaccinesSearchFilter() {
+    var templateObject = countriesVaccinesListElement.find("li.d-none");
+
+    $.each(_countriesVaccinesGraphInfo, function (key, val) {
+        // Get the country hebrew name. If it doesn't exist, skip it.
+        var hebrewName = val.hebrewName;
+
+        if (hebrewName) {
+            var item = templateObject.clone().removeClass("d-none").removeClass("template");
+            item.attr('data-id', hebrewName).attr('data-name', hebrewName);
+            item.find('.brand-control-checkbox-title').html(hebrewName);
+            item.find("input:checkbox").attr('data-id', hebrewName)
+                .attr('data-name', hebrewName);
+
+            countriesVaccinesListElement.append(item);
+
+            // When the state is change, work accordingly.
+            item.find("input:checkbox").change(function (e) {
+                // Add checked class to parent because there was a freakin' iOS 13 bug.
+                $(this).parent().toggleClass("checked", $(this).is(":checked"));
+
+                if ($(this).is(":checked")) {
+                    // Check if more than the max.
+                    if (countriesVaccinesListElement.find("input:checked").length > _maximumCountriesInCountriesVaccinesGraph) {
+                        // Prevent the selection.
+                        $(this).prop("checked", false);
+                        alert("לא ניתן לסמן יותר מ-" +
+                            _maximumCountriesInCountriesVaccinesGraph +
+                            " ערים.\nיש להסיר עיר על-מנת להוסיף אחת חדשה.");
+                        return false;
+                        // check if selected less then 2
+                    }
+                }
+
+
+                ToggleSelectedCountriesVaccines($(this).attr("data-id"), $(this).attr("data-name"), !$(this).is(":checked"));
+            });
+        }
+    });
+
+
+    // Sort the list.
+    countriesVaccinesListElement.find("li").sort(sort_li) // sort elements
+        .appendTo(countriesVaccinesListElement); // append again to the list
+    // sort function callback
+    function sort_li(a, b) {
+        return ($(b).data('name')) < ($(a).data('name')) ? 1 : -1;
+    }
+
+}
+
+function ToggleSelectedCountriesVaccines(countryValue, countryName, remove) {
+    if (remove) {
+        // Remove.
+        countriesVaccinesSelectedListElement.find("li[data-id='" + countryValue + "']").remove();
+    } else {
+        // Add.
+        var templateObject = countriesVaccinesSelectedListElement.find("li.d-none");
+        var item = templateObject.clone().removeClass("d-none").removeClass("template");
+        item.attr('data-id', countryValue).find('.brand-control-checkbox-title').html(countryName);
+        item.find('.brand-control-checkbox-label').addClass('checked');     // Add checked class to parent because there was a freakin' iOS 13 bug.
+        countriesVaccinesSelectedListElement.append(item);
+
+        // If unchecked, it removes itself.
+        item.find("input:checkbox").change(function () {
+            var currItem = $(this).closest("li");
+
+            // Remove the selection from the other checkbox too.
+            countriesVaccinesListElement.find('li input[data-id="' + currItem.attr("data-id") + '"]').prop("checked", false).parent().removeClass("checked");
+
+            currItem.remove();
+        });
+    }
+}
+
+
+// Graph initialization.
+function InitializeCountriesVaccinesGraph() {
+
+    // Get the data from the API first.
+    $.getJSON(_countriesVaccinesGraphUrl, function (countries) {
+        // Save.
+        _countriesVaccinesGraphInfo = countries.data;
+
+        // Get default countries' names.
+        var defaultCountries = [];
+        $.each(_countriesVaccinesGraphDefaultCountries, function (key, val) {
+            defaultCountries.push(GetCountryVaccinesById(val));
+        });
+
+        InitializeCountriesVaccinesSearchFilter();
+
+        // Get first and last dates.
+        var endDate = new moment();
+        endDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+
+        // Draw graph.
+        RefreshCountriesVaccinesGraph(defaultCountries);
+    });
+}
+
+
+// Refreshes the graph.
+function RefreshCountriesVaccinesGraph(countriesList) {
+    // Save as selected.
+    _selectedCountriesVaccines = countriesList;
+
+    // Remove old and get a template.
+    _countriesVaccinesGraphDomObject.find(".horizontal-bar-item:not(.d-none)").remove();
+    var template = _countriesVaccinesGraphDomObject.find(".horizontal-bar-item.d-none");
+    
+    // Get the countries and add them.
+    if (countriesList.length > 0) {
+        var allCountries = [];
+        $.each(_selectedCountriesVaccines, function (key, countryName) {
+            allCountries.push(GetCountryVaccinesByName(countryName));
+        });
+
+        // Order by the biggest to lowest.
+        allCountries = allCountries.sort((a, b) => (a["vaccinationsPer100"] < b["vaccinationsPer100"]) ? 1 : ((b["vaccinationsPer100"] < a["vaccinationsPer100"]) ? -1 : 0));
+
+        // Get the max value, so every bar length is relative to it.
+        var maxValue = Math.max.apply(Math, allCountries.map(function (o) { return o.vaccinationsPer100; }))
+        //var maxValue = 100;
+
+        // Now add the bars.
+        $.each(allCountries, function (key, country) {
+            var width;
+            if (maxValue > 0) {
+                width = ((country["vaccinationsPer100"] / maxValue) * 100) * 1;     // Change * 3 to affect the size.
+            } else {
+                width = 0;
+            }
+
+            // Duplicate the item.
+            var countryItem = template.clone().removeClass("d-none");
+
+            // Get positive-tests percentage.
+            var positiveTestsPercentage = country.totalVaccinations;
+            var positiveTestsWidth = 0; 
+
+            if (positiveTestsPercentage > 0) {
+                // Calculate the positive tests width, out of the bar's width.
+                //positiveTestsWidth = (positiveTestsPercentage * 1);       // Change the *1 to make it wider.
+                positiveTestsWidth = 10;
+
+                //if (positiveTestsPercentage >= 18) {
+                    countryItem.find(".progress-bar.progress-bar-tests").addClass("big-number");
+                //}
+            } else {
+                countryItem.find(".progress-bar.progress-bar-tests").hide();
+
+            }
+
+            // And fix the width to be the difference.
+            //width -= positiveTestsWidth;
+
+            countryItem.find(".horizontal-bar-title").html(country.hebrewName + " <span class='blue'>(" + numberWithCommas(positiveTestsPercentage) + " מתחסנים)</span>");
+            countryItem.find(".progress-bar .cases-value").html(country["vaccinationsPer100"].toFixed(1) + "%");
+            //countryItem.find(".progress-bar .tests-value").html(numberWithCommas(positiveTestsPercentage));
+            //countryItem.find(".progress-bar.progress-bar-tests").width(10 + "%");
+            countryItem.find(".progress-bar.progress-bar-tests").hide();
+
+            if (positiveTestsPercentage > 0) {
+                countryItem.find(".progress-bar.progress-bar-cases").width("calc(" + width + "%)");
+            } else {
+                //countryItem.find(".progress-bar.progress-bar-cases").width("5%");
+                countryItem.find(".progress-bar.progress-bar-cases").hide();
+            }
+
+            //.css("background-color", COUNTRIES_VACCINES_GRAPH_COLORS[key]);
+
+
+            _countriesVaccinesGraphDomObject.find(".horizontal-bars-graph-inner").append(countryItem);
+        });
+    }
+}
+
+
+// Types' radio-buttons.
+$("input[name='countries-vaccines-graph-type']").change(function () {
+    RefreshCountriesVaccinesGraph(_selectedCountriesVaccines);
+
+    ga('send', 'event', 'Corona Virus', 'גרף המתחסנים נגד קורונה בעולם: הקלקה על ' + $(this).attr("data-name"));
+});
+
+function numberWithCommas(x) {
+    if (!x) {
+        return x;
+    }
+
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+function escapeStr(str) {
+    if (str)
+        return str.replace(/([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g, '\\$1');
+
+    return str;
+}

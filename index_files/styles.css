@@ -1,0 +1,248 @@
+﻿@font-face{
+	font-family:'almoni-dl';
+	font-weight:700; 
+	font-style: normal;
+	src: url('../../Styles/font_files/almoni-dl-aaa-700.eot'); 
+	src: url('../../Styles/font_files/almoni-dl-aaa-700.eot?#iefix') format('embedded-opentype'), 
+		url('../../Styles/font_files/almoni-dl-aaa-700.ttf') format('truetype'), 
+		url('../../Styles/font_files/almoni-dl-aaa-700.woff') format('woff'), 
+		url('../../Styles/font_files/almoni-dl-aaa-700.svg#almoni-dl-bold') format('svg');
+}
+
+@font-face{
+	font-family:'almoni-dl';
+	font-weight:400;
+	font-style: normal;
+	src: url('../../Styles/font_files/almoni-dl-aaa-400.eot'); 
+	src: url('../../Styles/font_files/almoni-dl-aaa-400.eot?#iefix') format('embedded-opentype'), 
+		url('../../Styles/font_files/almoni-dl-aaa-400.ttf') format('truetype'), 
+		url('../../Styles/font_files/almoni-dl-aaa-400.woff') format('woff'), 
+		url('../../Styles/font_files/almoni-dl-aaa-400.svg#almoni-dl-regular') format('svg');
+}
+
+*
+{
+	font-family:Arial;
+	box-sizing:border-box;
+	-ms-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+}
+
+body
+{
+	background-color:white;
+	direction:rtl;
+	padding:0px;
+	margin:0px;	
+	font-family:"Arial", "Arial (Hebrew)", "David (Hebrew)", "Courier New (Hebrew)";
+}
+
+form
+{
+	margin:0px 0px 0px 0px;	
+	padding:0px 0px 0px 0px;
+}
+
+div.aspNetHidden { display:none; }
+
+a
+{
+	text-decoration:none;	
+}
+
+img
+{
+	margin:0px 0px 0px 0px;
+	padding:none;	
+	display: block;
+}
+
+a img
+{
+	border:none;
+	padding:none;
+}
+
+table { border-collapse:collapse; border-spacing:0px; } 
+
+table.tblSearch
+{
+	color:White;
+}
+table.tblSearch td
+{
+	vertical-align:top;
+	text-align:right;	
+	font-size:10px;
+	line-height:11px;
+	padding-right:4px;
+}
+
+table.tblSearch td.btnSearchContainer
+{
+	text-align:left;
+	padding:0px 1px 0px 6px;
+}
+
+table.tblSearch select
+{
+	height:22px;
+	font-size:11px;
+	line-height:17px;
+}
+
+input.btnSearch
+{
+	background-color:white;
+	color:#515151;
+	border:solid 2px #515151;
+	width:45px;
+	height:23px;
+	font-weight:bold;
+	font-size:12px;
+	text-align:center;
+	padding-top:0px;
+	padding-bottom:2px;
+}
+
+div.datalistTitle  
+{
+	margin:0px 0px 0px 0px; 
+	font-size:10px;
+	padding:0px;
+	padding-right:4px;
+	border:solid 1px #c1141a;
+	border-top:none;
+	border-bottom:none;
+	color:#5f5f5f;
+	padding-bottom:1px;
+}
+
+table.tblDataList 
+{
+	border:solid 1px #c1141a;
+	border-top:none;
+}
+
+table.tblDataList td
+{
+	border:none;
+	text-align:center;
+	padding:1px;
+	font-size: 0px;
+	letter-spacing: 0px;
+	word-spacing: 0px;
+}
+
+table.tblDataList td a.imgContainer
+{
+	display:inline-block;
+	width:75px;
+	height:47px;
+	padding:0px;
+}
+
+table.tblDataList td a.imgContainer img
+{
+	margin-left:auto;
+	margin-right:auto;
+}
+
+
+table.tblDataList td a.title
+{
+	padding:0px 0px 0px 0px;
+	margin:0px 0px 0px 0px;
+	display:inline-block;
+	width:75px;
+	height:13px;
+	overflow:hidden;
+	text-align:center;
+	font-size:11px;
+	color:#616161;
+	white-space:nowrap;
+	line-height:14px;
+	word-spacing:0;
+}
+
+table.tblDataList td a.subTitle
+{
+	padding:0px 0px 0px 0px;
+	margin:0px 0px 0px 0px;
+	display:inline-block;
+	width:75px;
+	height:14px;
+	overflow:hidden;
+	text-align:center;
+	font-size:11px;
+	color:#ce0309;
+	white-space:nowrap;
+	line-height:14px;
+	word-spacing:0;
+}
+
+div.tblDataLinks
+{
+	background-color:#f1f1f1;
+	white-space:normal;
+	color:#747474;
+	font-size:11px;
+	border:solid 1px #c1141a;
+	border-top:none;
+	padding: 0px 2px 0px 2px;
+	overflow:hidden;
+	text-align:center;
+}
+
+div.tblDataLinks a
+{
+	color:#747474;
+}
+
+td.articleContainer
+{
+	font-size: 0px;
+	letter-spacing: 0px;
+	word-spacing: 0px;
+	padding:5px;
+	text-align:right;
+}
+
+div.articleList
+{
+    border:solid 1px #c1141a;                	
+    border-top:none;
+    border-bottom:none;
+}
+div.articleList tbody { /*fix fade issue with ie*/
+    display:block;
+}
+a.articleTitle { font-size:13px; color:#be181c; text-align:right; font-weight:bold; overflow:hidden; width:130px; height:15px; display:inline-block; }
+a.articleContent { font-size:12px; color:#020202; text-align:right; overflow:hidden; overflow:hidden; width:130px; height:50px; display:inline-block; text-decoration:none; }
+td.articleImage { text-align:left; padding-right:5px;}
+td.articleContainer{ height:73px; }
+            
+div.dvPages 
+{
+    background-image:url(Pages_BG.png);
+    background-repeat:repeat-x;
+    background-position:bottom;
+    height:25px;
+    font-size:11px;
+    text-align:center;
+    color:#515151;
+    border:solid 1px #c1141a;
+    border-top:none;
+    vertical-align:bottom;
+    margin-top:-6px;
+}
+            
+div.dvPages span
+{
+    display:inline-block;
+    color:#515151;
+    font-weight:bold;
+    width:14px;
+    padding-top:9px;
+    cursor:pointer;
+}

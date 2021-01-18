@@ -1,0 +1,407 @@
+/*
+ stillOver && */
+(function (k, u, b) {
+    function Z(a, d) { var c = d && d.filter || "*", e = d && d.onClass || ""; if (d.onClass) a.on("mouseenter mouseleave", c, function (a) { var c = b(this); "mouseenter" == a.type ? c.addClass(e) : c.removeClass(e) }) } function E(a) { b(".slider"); var d = b(".slider ul li"); b(".slider"); var c = -1 == a ? d[d.length - 1] : d[8 * (a + 1) - 1], e = b(".timeLine .date"); e.fadeOut("fast", function () { e.html(b(c).data("date")); e.fadeIn() }) } function D() { return b(event.target.parentNode).data("url") } function M() {
+        b(".live-video").viewportChecker({ repeat: !0 }).each(function () {
+            b(this).hasClass("visible") ?
+            this.play() : this.pause()
+        })
+    } function N(a, d) { var c = b("ul.recipeIngredients"), e = '<div class="marker" data-related="' + a.replace(/ /g, "") + '" >' + a + "</div>"; c.each(function (b, c) { var f = c.innerHTML; f = f.replace(new RegExp(a, "g"), e); -1 != f.indexOf(e) && (window.dataLayer = window.dataLayer || [], dataLayer.push({ event: "Gold Word", category: "Inview Gold word comp", Action: a + "-" + d, label: location.href })); c.innerHTML = f }) } (function (a) {
+        function b() {
+        this.makoCreateUniqueId = this.makoGetUniqueId = function () { return "noStorageSupported" };
+            this.makoGetObject = this.makoSetObject = this.getItem = this.setItem = this.clear = this.removeItem = this.key = function () { return !1 }
+        } function c() { for (var a = [], b = 0; 36 > b; b++)a[b] = "0123456789abcdef".substr(Math.floor(16 * Math.random()), 1); a[19] = "0123456789abcdef".substr(a[19] & 3 | 8, 1); a[8] = a[13] = a[18] = a[23] = "-"; return a.join("").replace(/./g, function (a, b) { return 0 == b ? "W" : a }) } function e() {
+            return Array(37).join("x").replace(/[x]/g, function (a) { return (f.getRandomValues(new Uint8Array(1))[0] % 16).toString(16) }).replace(/./g,
+                function (a, b) { return 0 == b ? "W" : a })
+        } var f = a.crypto || a.msCrypto, g = f ? e : c; if (!a.safeLocalStorage) {
+            var h = !1, n = !1; try { n = "localStorage" in a && null !== a.localStorage } catch (l) { n = !1 } if (n) try { a.localStorage.setItem("__storage_test__", "__storage_test__"), a.localStorage.removeItem("__storage_test__"), h = !0 } catch (l) { h = !1 } h ? (a.safeSessionStorage = a.sessionStorage, a.safeLocalStorage = a.localStorage, a.Storage.prototype.makoGetUniqueId = function (a) {
+                var b = "uniqueId"; "string" === typeof a && (b = a); a = this.getItem(b); var c = this.getItem("mako_tv_device_id");
+                c ? c != a && (this.setItem(b, c), a = c) : a && "W" == a.charAt(0) ? this.setItem("mako_tv_device_id", a) : (a = g(), this.setItem(b, a), this.setItem("mako_tv_device_id", a)); return a
+            }, a.Storage.prototype.makoGetObject = function (b) { "string" === typeof b ? (b = this.getItem(b)) && "string" === typeof b && a.JSON && (b = a.JSON.parse(b)) : b = !1; return b }, a.Storage.prototype.makoSetObject = function (b, c) { var d = c; "string" === typeof b ? (d && "object" === typeof d && a.JSON && (d = a.JSON.stringify(d)), this.setItem(b, d), d = !0) : d = !1; return d }, a.Storage.prototype.makoCreateUniqueId =
+                g) : (a.safeLocalStorage = new b, a.safeSessionStorage = new b)
+        }
+    })(window); b.debounce && b.throttle || function (a, d) { var c; b.throttle = c = function (a, c, g, h) { function f() { function b() { k = +new Date; g.apply(n, aa) } function f() { e = d } var n = this, l = +new Date - k, aa = arguments; h && !e && b(); e && clearTimeout(e); h === d && l > a ? b() : !0 !== c && (e = setTimeout(h ? f : b, h === d ? a - l : a)) } var e, k = 0; "boolean" !== typeof c && (h = g, g = c, c = d); b.guid && (f.guid = g.guid = g.guid || b.guid++); return f }; b.debounce = function (a, b, g) { return g === d ? c(a, b, !1) : c(a, g, !1 !== b) } }(window);
+    var H = k.AsyncUpload = {
+        createFrame: function (a, d, c, e) {
+        k.oldDomain = u.domain; u.domain = "mako.co.il"; var f = "f" + Math.floor(99999 * Math.random()), g = u.createElement("DIV"); g.innerHTML = e ? '<iframe style="display:none" src="about:blank" id="' + f + '" name="' + f + '"></iframe>' : '<iframe style="display:none" src="about:blank" id="' + f + '" name="' + f + '" onload="AsyncUpload.documentLoaded(\'' + f + "')\"></iframe>"; j$("head")[0].appendChild(g); g = j$("#" + f); d && "function" == typeof d && g.data("completeCallback", d); a && a.attr("target",
+            f); e && b("#" + f).load(function () { H.documentLoaded(f) }); c && g.attr("src", c)
+        }, documentLoaded: function (a) { var b = j$("#" + a); try { var c = b.contentDocument ? b.contentDocument : b.contentWindow ? b.contentWindow.document : k.frames[a].document; if ("about:blank" == c.location.href) return; var e = c.body.innerHTML } catch (f) { e = "failed" } "function" == typeof b.data("completeCallback") && b.data("completeCallback")(e) }, submitForm: function (b, d, c, e) { H.createFrame(b, c, e); return d && "function" == typeof d ? d() : !0 }
+    }; k.cfAjax = {
+        Request: function (b,
+            d, c) { H.createFrame(null, d, b, c) }
+    }; k.sliders = { easy: function (b, d) { Lazy.js("rcs@/js/easySlider1.7.5.js", function () { b.easySlider(d); b.fadeIn() }) }, flex: function (b, d) { Lazy.js("rcs@/js/scripts/jquery.flexslider-min.js", function () { b.flexslider(d); b.fadeIn() }) } }; var A = b(k), O, P, w = b("html"), x = b(u); j$ = b; b.is = function (b) { return w.eq(0).hasClass(b) }; b.fn.equals = function (a) { return b(this)[0] == b(a)[0] }; b.interpolate = function (b, d) {
+        return b.replace(/{([^{}]*)}/g, function (b, a) {
+            var c = d[a]; return "string" === typeof c || "number" ===
+                typeof c ? c : b
+        })
+    }; b.getUrlVars = function () { for (var b = [], d, c = k.location.href.slice(k.location.href.indexOf("?") + 1).split("&"), e = 0; e < c.length; e++)d = c[e].split("="), b.push(d[0]), b[d[0]] = d[1]; return b }; b.getUrlVar = function (a) { return b.getUrlVars()[a] }; b.isHP = function () { return "Homepage" == k.contentType }; (function () {
+        function a(a, c) {
+            var d = {}; b.each(c || [], function (b, c) { c instanceof Array || (c = [c, c]); a.push([c[0], "get" + c[1]], [c[0], "set" + c[1]]) }); b.each(a, function (a, c) {
+                var f = c; c instanceof Array && (f = c[1], c = c[0]);
+                d[f] = b.Class.create({ init: function () { var b = Array.prototype.slice.call(arguments); if (this.constructor == d[f]) this.arguments = b; else return d[f].prototype.attach.apply(d[f], b) }, arguments: [], attach: function (a) { var d = 1 == arguments.length ? this.arguments : Array.prototype.slice.call(arguments, 1); if (d.length) { var f = d[d.length - 1]; "function" == typeof f && (d[d.length - 1] = function () { var b = Array.prototype.slice.call(arguments); return f.apply(this, [this].concat(b)) }) } return b.fn[c].apply(b(a), d) } })
+            }); return d
+        } var d = !1,
+            c = /xyz/.test(function () { xyz }) ? /\b_super\b/ : /.*/; b.Class = function () { }; b.Class.create = function (a) {
+                function f() { if (!d && f.prototype.init) return f.prototype.init.apply(this, arguments) } var e = this.prototype; d = !0; var h = new this; d = !1; for (var n in a) h[n] = "function" == typeof a[n] && "function" == typeof e[n] && c.test(a[n]) ? function (b, a) { return function () { var c = this._super; this._super = e[b]; var d = a.apply(this, arguments); this._super = c; return d } }(n, a[n]) : a[n]; f.prototype = h; f.prototype.constructor = f; f.extend = b.Class.create;
+                return f
+            }; b.querySelectorAll = function () { return b.apply(b, arguments) }; b.querySelector = function () { return b.querySelectorAll.apply(b, arguments)[0] }; b.fn.forEach = function (b) { return this.each(function (a) { b(this, a) }) }; b.fn.attach = function (b) { var a = b.attach || (new b).attach || function () { }; return this.forEach(function (c) { a.call(b, c) }) }; b.DOM = a(["prepend", "append", ["before", "insertBefore"], ["after", "insertAfter"], "wrap", "wrapInner", "wrapAll", "clone", "empty", "remove", "replaceWith", ["removeAttr", "removeAttribute"],
+                ["addClass", "addClassName"], ["hasClass", "hasClassName"], ["removeClass", "removeClassName"], ["offset", "getOffset"]], [["text", "Text"], ["html", "HTML"], ["attr", "Attribute"], ["val", "Value"], ["height", "Height"], ["width", "Width"], ["css", "CSS"]]); b.Traverse = a([["children", "getChildElements"], ["find", "getDescendantElements"], ["next", "getNextSiblingElements"], ["nextAll", "getAllNextSiblingElements"], ["parent", "getParentElements"], ["parents", "getAncestorElements"], ["prev", "getPreviousSiblingElements"], ["prevAll",
+                    "getAllPreviousSiblingElements"], ["siblings", "getSiblingElements"], ["filter", "filterSelector"]]); b.Events = a([["bind", "addEventListener"], ["unbind", "removeEventListener"], ["trigger", "triggerEvent"], "hover", "toggle"]); b.fn.buildAnimation = function (b) { var a = this; return { start: function () { a.animate(b) }, stop: function () { a.stop() } } }; b.Effects = a("show hide toggle buildAnimation queue dequeue".split(" ")); b.fn.ajax = b.ajax; b.Ajax = a([["ajax", "request"], ["load", "loadAndInsert"], ["ajaxSetup", "setup"], ["serialize",
+                        "getSerializedString"], ["serializeArray", "getSerializedArray"]])
+    })(); var m = function () {
+        function a() {
+            var a = new Map; a.set("1020", "soer"); a.set("1030", "barad"); a.set("1310", "havil"); a.set("1270", "havil"); a.set("1280", "havil"); a.set("1330", "hot"); a.set("1440", "hot"); a.set("1460", "sharav"); a.set("1430", "localRain"); a.set("1040", "snowStorm"); a.set("1050", "snowStorm"); a.set("1060", "snow"); a.set("1070", "snow"); a.set("1080", "snow"); a.set("1130", "snow"); a.set("1290", "cold"); a.set("1300", "cold"); a.set("1320",
+                "cold"); a.set("1340", "cold"); a.set("1450", "cold"); a.set("1090", "memtarim"); a.set("1100", "memtarim"); a.set("1110", "memtarim"); a.set("1120", "tiftuf"); a.set("1140", "rainy"); a.set("1150", "rainy"); a.set("1160", "fog"); a.set("1170", "fog"); a.set("1180", "fog"); a.set("1200", "meunan"); a.set("1210", "meunan"); a.set("1220", "meunan"); a.set("1230", "meunan"); a.set("1240", "clear"); a.set("1250", "clear"); a.set("1190", "avich"); a.set("1010", "sandStorm"); a.set("1260", "sandStorm"); a.set("1350", "meunanHelkit"); a.set("1370",
+                    "meunanHelkit"); a.set("1390", "meunanHelkit"); a.set("1410", "meunanHelkit"); a.set("1360", "meunanHelkit"); a.set("1380", "meunanHelkit"); a.set("1400", "meunanHelkit"); a.set("1420", "meunanHelkit"); var d = b(".forecast", "header.responsive"); b.getJSON(d.data("feed"), function (a) {
+                        var c = [], f = a.cities, e = a.IssueDate; template = '<li class="svg {imgCase}"><a href="/news-weather?partner=NavBar"><span>{city} {night}&deg;</span></a></li>'; e = e.split(" ")[1]; parseInt(e.split(":")[0]); for (e = 0; e < f.length; e++) {
+                            var l = f[e].nameEng;
+                            if (-1 != "Haifa,Tel Aviv - Yafo,Jerusalem,Tiberias,Beer Sheva,Elat,Zefat,Ashdod".indexOf(l)) { a = f[e].dates[0].max - f[e].dates[0].min; var k = Math.abs((new Date).getHours() - 12) / 12; a = { city: f[e].name, day: f[e].dates[0].max, night: Math.ceil(f[e].dates[0].max - k * a), imgCase: "icon-" + f[e].dates[0].className, desc: f[e].dates[0].description }; a = b.interpolate(template, a); "Tel Aviv - Yafo" === l ? c.unshift(a) : c.push(a) }
+                        } d.find(".flexslider ul").html(c.join("")); sliders.flex(d.find(".flexslider"), { controlNav: !1, start: function (a) { a.removeClass("loading") } })
+                    })
+        }
+        function d() { function a() { var a = d.offset().top - 30; isFixed || g == a || (g = a); k.pageYOffset >= g && !isFixed ? isFixed = 1 : k.pageYOffset <= g && isFixed && (isFixed = 0); isFixed ? (f.addClass("stickified"), w.addClass("sticky-header")) : (f.removeClass("stickified"), w.removeClass("sticky-header")) } var d = b("nav.responsive"), f = d.parent(), g = d.offset().top - 30; isFixed = 0; a(); A.scroll(function () { a() }) } return {
+            init: function () {
+                function c(a, c) {
+                    var d = []; b.getJSON(a, function (a) {
+                        b.each(a, function (a, c) {
+                            if (5 == a) return !1; var f = b.interpolate('<li><a href="{url}"><span>{title}</span></a></li>',
+                                { url: c.url + "?Partner=NavBarSearchRecommended", title: c.title }); d.push(f)
+                        }); c(d)
+                    })
+                } function e(a) { x.off("keydown.headerV17"); var c = a.keyCode; b(a.target).is("input,textarea") || 8 !== c && 27 !== c || (a.preventDefault(), b("ul > li.open", "nav.responsive").removeClass("open"), g.removeClass("open"), w.removeClass("noScroll")) } d(); a(); var f = b(".search", "nav.responsive"), g = b(".search", "header.responsive"); c(f.data("tags"), function (a) { f.find(".tags ul").html(a.join("")) }); c(f.data("tags") + "&channel=46bbe76404864110VgnVCM1000004801000aRCRD",
+                    function (a) { f.find(".peopleTags ul").html(a.join("")) }); var h = []; b("nav.responsive li.programs ul li").slice(0, 5).each(function (a, c) { var d = b(this).find("figure img").data("pic-f"), f = b(this).find("figure a").eq(0).attr("href"); f = f.split("?")[0]; d = b.interpolate('<li><a href="{url}"><img src="{src}"/></a></li>', { url: f + "?Partner=NavBarSearchRecommended", src: imagesUriPrefix + d }); h.push(d) }); f.find(".programs ul").html(h.join("")); b("> .programs > a,> .more-menu > a,> .specials > a", "nav.responsive .inner > ul").on("click",
+                        function (a) { a.preventDefault(); g.removeClass("open"); a = b(this).closest("li"); var c = a.siblings(".open"); c.removeClass("open"); a.toggleClass("open"); c.length || w.toggleClass("noScroll"); x.on("keydown.headerV17", function (a) { e(a) }) }); b(".search > a", "header.responsive,nav.responsive").on("click", function (a) {
+                            a.preventDefault(); b(this).closest("div.search").toggleClass("open"); a = b(".search", "nav.responsive"); var c = a.siblings(".open"); c.removeClass("open"); a.toggleClass("open"); b(".search [name=searchstring_input]").focus();
+                            c.length || w.toggleClass("noScroll"); x.on("keydown.headerV17", function (a) { e(a) })
+                        }); b(".closeBtn", "nav.responsive").on("click", function (a) { a.preventDefault(); b(this).closest("li").removeClass("open"); w.removeClass("noScroll"); g.removeClass("open"); x.off("keydown.headerV17") }); var n = f.find(".inputText"), l = b("input[type=text]", f), k = parseInt(l.css("width")), p = 0, v = !1; l.on("keyup", function () {
+                            var a = l.val(); n.text(a); n.width() > k && !v ? (l.closest("form").addClass("smaller"), p = a.length, v = !0) : a.length < p && v && (l.closest("form").removeClass("smaller"),
+                                p = a.length, v = !1)
+                        })
+            }
+        }
+    }(); b("header.responsive").length && m.init(); m = function () {
+        var a; return {
+            init: function (d) {
+                a = d; b.is("csstransitions") ? (b(".scrollWrapper", a).addClass("marquee").find("p").wrapAll("<div/>"), Lazy.js("rcs@/js/scripts/marquee.js")) : Lazy.js(["rcs@/js/jquery.smoothdivscroll-1.3-min.js", "rcs@/js/scripts/jquery.mousewheel.min.js"], function () {
+                    a.smoothDivScroll({ autoScrollingMode: "always", autoScrollingDirection: "endlessLoopLeft", autoScrollingStep: 2, autoScrollingInterval: 30 }); a.on("mouseover",
+                        function () { a.smoothDivScroll("stopAutoScrolling") }).on("mouseout", function () { a.smoothDivScroll("startAutoScrolling") })
+                }); a.on("inview", function (c, d) { d ? b.is("csstransitions") ? b(".scrollWrapper", a).addClass("marquee") : a.smoothDivScroll("startAutoScrolling") : b.is("csstransitions") ? b(".scrollWrapper", a).removeClass("marquee") : a.smoothDivScroll("stopAutoScrolling") })
+            }
+        }
+    }(); var ba = function () { var a = 0; return function (b, c) { clearTimeout(a); a = setTimeout(b, c) } }(); k.submitPageRecord = function (a, d) {
+        var c = document.referrer;
+        if (null == c || 0 == c.length) { c = ""; var e = location.search.toLowerCase().indexOf("partner=facebook"); -1 != e && (c = -1 == location.search.indexOf("&", e) ? void 0 : location.search.indexOf("&", e) - 1, c = location.search.substr(e, c)) } c = encodeURIComponent(c); k.contentType || (k.contentType = ""); k.contentUsername || (k.contentUsername = ""); k.statsDomainPrefix = k.statsDomainPrefix || "http://stats.mako.co.il"; if (k.statsDomainPrefix && k.safeLocalStorage) {
+        k.metricsParams = {
+            vcmId: a, channelId: d, contentType: contentType, contentUsername: contentUsername,
+            uniqueCookieId: safeLocalStorage.makoGetUniqueId(), referrer: c
+        }; if ("3d385dd2dd5d4110VgnVCM100000290c10acRCRD" == a && k.Personalization && k.P13N) try { var f = JSON.parse(P13N.reordering.get_reporting_parameters()), g = { is_p: f.is_p + "", order: decodeURIComponent(f.order), a_ver: f.a_ver, cg_p: f.cg_p + "" }; b.extend(k.metricsParams, g) } catch (h) { k.console && console.log("failed to add reorder params : " + h) } k.Lazy && k.Lazy.js("rcs@/js/scripts/metrics.js")
+        }
+    }; k.printMessage = function (a) {
+        try {
+            var d = b("#talkback_header_div_" + a).html(),
+            c = b("#talkback_content_" + a).html()
+        } catch (g) { return } a = k.open("", "", "toolbar=yes,location=no,directories=yes,menubar=yes,scrollbars=yes,width=750,height=600,left=100,top=25"); var e = a.doc, f = []; a.doc.open(); f.push("<html>"); f.push("<head>"); f.push('<link rel="stylesheet" href="' + staticResourcesUriPrefix + '/css/mako_main.css">'); f.push('<link rel="stylesheet" href="' + staticResourcesUriPrefix + '/css/mako_general.css">'); f.push('<link rel="stylesheet" href="' + staticResourcesUriPrefix + '/css/forum.css">'); f.push("</head>");
+        f.push("<body>"); f.push(d); f.push(c); f.push("</body></html>"); e.write(f.join("")); e.close(); a.focus(); a.print(); a.close()
+    }; k.setKidumLive = function () { k.isKidumLive && (b("#liveTextHref").html(b("news_ordering_title").html()), b("#stripLiveDiv").hide(), b("#kidumLiveDiv").show()) }; w.addClass("newSticky"); var Q = function () {
+        var a = Q, /*d = window.setScreenSize(!0),*/ c = 0; if (!a.mainReady) if (a.$main = b(".mako_content_container"), a.$main[0]) a.mainWidth = a.$main.outerWidth(), a.mainReady = !0; else return; a.socialStickyReady || (a.$socialSticky =
+            b(".social_sticky"), a.$socialSticky[0] && (a.socialStickyWidth = 76, a.socialStickyReady = !0, a.socialStickyStatus = "off")); a.elvisReady || (a.$elvis = b(".elvisWrp"), a.$elvis[0] && a.$elvis.height() && (a.elvisReady = !0)); if (a.elvisReady) { var e = d.width >= d.innerWidth + 264 ? "show" : "hide"; a.$elvis.data("hide") || "hide" !== e ? a.$elvis.data("hide") && "show" === e && a.$elvis.removeClass("abHide").data("hide", !1) : a.$elvis.addClass("abHide").data("hide", !0) } a.ozenReady || (a.$ozen = b("#mako_main_glideDiv"), a.$ozenAds = a.$ozen.find(" > div.ad.cm8"),
+                a.$ozen.length && a.$ozen.height() && (a.ozenReady = !0, a.ozenStatus = "on"), a.$peel = b("#pagePeel > div.small"), a.$peel[0] && (a.peelWidth = a.$peel.outerWidth(), a.peelReady = !0, a.peelStatus = "on", a.$ozen = a.$ozenAds)); a.menuReady || (a.$menu = b("#mako_main_floating_menu"), a.$menu[0] && (a.menuWidth = 86, a.menuReady = !0, a.menuStatus = "off")); if (a.ozenReady || a.menuReady) a.ozenReady && (c = a.$ozen.outerWidth() || 0, e = a.$main.offset().left, c = e < c ? "hide" : "show", 0 != b(".presentation-image").children().length && (c = "show"), "hide" === c &&
+                    "on" === a.ozenStatus ? (a.$ozen.addClass("abHide"), a.ozenStatus = "off") : "show" === c && "off" === a.ozenStatus && (a.$ozen.removeClass("abHide"), a.ozenStatus = "on"), a.peelReady && (e = e < a.peelWidth ? "hide" : "show", "hide" === e && "on" === a.peelStatus && 0 <= parseInt(a.$peel.css("top")) ? (a.$peel.addClass("abHide"), a.peelStatus = "off") : "show" === e && "off" === a.peelStatus && (a.$peel.removeClass("abHide"), a.peelStatus = "on"))), (a.$centralAds = a.$centralAds || b(".large-mid-ad")).each(function () {
+                        var a = b(this), c = a.css({ display: "inline-block" }).outerWidth() >
+                            d.innerWidth + 20 ? "hide" : "show"; a.css({ display: "block" }); a.data("hide") || "hide" !== c ? a.data("hide") && "show" === c && (a.removeClass("abHide"), a.data("hide", !1)) : (a.addClass("abHide"), a.data("hide", !0))
+                    }), a.menuReady && (e = d.width < a.$main.offset().left + a.$main.outerWidth() + a.menuWidth + (a.elvisReady && !a.$elvis.data("hide") ? 132 : 0) ? "hide" : "show", "on" === a.menuStatus && "hide" === e ? (a.$menu.stop(!0, !0).fadeOut("fast").addClass("abHide"), a.menuStatus = "off") : "off" === a.menuStatus && "show" === e && (a.$menu.stop(!0, !0).removeClass("abHide").fadeIn("slow"),
+                        a.menuStatus = "on")), a.socialStickyReady && (e = a.socialStickyWidth + 30 > a.$main.offset().left ? "hide" : "show", "on" === a.socialStickyStatus && "hide" === e ? (a.$socialSticky.stop(!0, !0).fadeOut("fast"), a.socialStickyStatus = "off") : "off" === a.socialStickyStatus && "show" === e && (a.$socialSticky.stop(!0, !0).fadeIn("slow"), a.socialStickyStatus = "on"))
+    }; b.toJSON = function (a) {
+        if ("object" == typeof JSON && JSON.stringify) return JSON.stringify(a); var d = typeof a; if (null === a) return "null"; if ("undefined" != d) {
+            if ("number" == d || "boolean" ==
+                d) return a + ""; if ("string" == d) return b.quoteString(a); if ("object" == d) {
+                    if ("function" == typeof a.toJSON) return b.toJSON(a.toJSON()); if (a.constructor === Date) { var c = a.getUTCMonth() + 1; 10 > c && (c = "0" + c); var e = a.getUTCDate(); 10 > e && (e = "0" + e); d = a.getUTCFullYear(); var f = a.getUTCHours(); 10 > f && (f = "0" + f); var g = a.getUTCMinutes(); 10 > g && (g = "0" + g); var h = a.getUTCSeconds(); 10 > h && (h = "0" + h); a = a.getUTCMilliseconds(); 100 > a && (a = "0" + a); 10 > a && (a = "0" + a); return '"' + d + "-" + c + "-" + e + "T" + f + ":" + g + ":" + h + "." + a + 'Z"' } if (a.constructor === Array) {
+                        c =
+                        []; for (e = 0; e < a.length; e++)c.push(b.toJSON(a[e]) || "null"); return "[" + c.join(",") + "]"
+                    } c = []; for (e in a) { d = typeof e; if ("number" == d) d = '"' + e + '"'; else if ("string" == d) d = b.quoteString(e); else continue; "function" != typeof a[e] && (f = b.toJSON(a[e]), c.push(d + ":" + f)) } return "{" + c.join(", ") + "}"
+                }
+        }
+    }; b.evalJSON = function (a) { return "object" == typeof JSON && JSON.parse ? JSON.parse(a) : eval("(" + a + ")") }; b.secureEvalJSON = function (a) {
+        if ("object" == typeof JSON && JSON.parse) return JSON.parse(a); var b = a.replace(/\\["\\\/bfnrtu]/g, "@");
+        b = b.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]"); b = b.replace(/(?:^|:|,)(?:\s*\[)+/g, ""); if (/^[\],:{}\s]*$/.test(b)) return eval("(" + a + ")"); throw new SyntaxError("Error parsing JSON, source is not valid.");
+    }; b.quoteString = function (a) { return R.test(a) ? '"' + a.replace(R, function (a) { var b = ca[a]; if ("string" === typeof b) return b; b = a.charCodeAt(); return "\\u00" + Math.floor(b / 16).toString(16) + (b % 16).toString(16) }) + '"' : '"' + a + '"' }; var R = /["\\\x00-\x1f\x7f-\x9f]/g, ca = {
+        "\b": "\\b",
+        "\t": "\\t", "\n": "\\n", "\f": "\\f", "\r": "\\r", '"': '\\"', "\\": "\\\\"
+    }; b.Cookie = b.Class.create({
+        init: function (a, d) { this.options = { expires: { day: 1, min: 0 }, domain: "", path: "/", secure: !1 }; this.options = b.extend(this.options, a || {}); if (d) { var c = this.retrieve(); this.store(b.extend(c, d)) } }, exists: function () { return !b.isEmptyObject(this.retrieve()) }, getData: function (a) { var d = this.retrieve(); return a ? d[a] : b.toJSON(d) }, setData: function (a, b) { var c = this.retrieve(); c[a] = b; return this.store(c) }, removeData: function (a) {
+            var b =
+                this.retrieve(); delete b[a]; return this.store(b)
+        }, retrieve: function () { var a = document.cookie.indexOf(this.options.name + "="); if (-1 == a || this.options.name != document.cookie.substr(a, this.options.name.length)) return {}; a = a + this.options.name.length + 1; var d = document.cookie.indexOf(";", a); -1 == d && (d = document.cookie.length); return b.parseJSON(unescape(document.cookie.substring(a, d)) || "{}") }, store: function (a) {
+            a = escape(b.toJSON(a)); var d = ""; if (this.options.expires) {
+                var c = new Date; d = 864E5 * this.options.expires.day +
+                    6E4 * this.options.expires.min; d = ";expires=" + (new Date(c.getTime() + d)).toGMTString()
+            } document.cookie = this.options.name + "=" + a + this.getOptions() + d; return !0
+        }, erase: function () { document.cookie = this.options.name + "=" + this.getOptions() + ";expires=Thu, 01-Jan-1970 00:00:01 GMT" }, getOptions: function () { return (this.options.path ? ";path=" + this.options.path : "") + (this.options.domain ? ";domain=" + this.options.domain : "") + (this.options.secure ? ";secure" : "") }
+    }); var I = function (a, b, c) {
+        var d = "; expires="; if (c) {
+            var f = new Date;
+            f.setTime(f.getTime() + 864E5 * c); d += f.toGMTString()
+        } else d = ""; u.cookie = a + "=" + b + d + "; path=/"; return b
+    }, S = function (a, b) { for (var c = a + "=", d = u.cookie.split(";"), f = 0; f < d.length; f++) { for (var g = d[f]; " " == g.charAt(0);)g = g.substring(1, g.length); if (0 == g.indexOf(c)) return g.split("=")[1] } return b ? I(a, b) : null }; k.getCookie = function (a, b) { return S(a, b) }; k.setCookie = function (a, b, c) { return I(a, b, c) }; k.deleteCookie = function (a, b, c) { b = "/"; getCookie(a) && (document.cookie = a + "=" + (b ? ";path=" + b : "") + (c ? ";domain=" + c : "") + ";expires=Thu, 01-Jan-1970 00:00:01 GMT") };
+    var J = k.TopMenuBar = {
+        init: function () {
+            var a = this; this.$wrp = b(".top-nav-bar"); this.$main = this.$wrp.find(".main-menu"); this.$wrp.find("li.login"); this.menuRightOffset = this.getRightOffset(this.$main); this.$mainList = this.$wrp.find(".main-menu > ul"); this.$mainItems = this.$mainList.find(" > li"); this.$more = this.$wrp.find(".more-menu"); this.$moreList = this.$more.find(" > ul"); this.subWidth = this.$mainItems.find(" > ul:eq(0)").width(); this.$mainItems.has("> ul").addClass("parent"); this.$mainItems.not(".parent").addClass("active");
+            Lazy.js("rcs@/js/scripts/makoSticky.js", function () { b(function () { b(".top-nav-bar").stickify({ marginTop: 0 }) }) }); var d = this.$wrp.find(" > li.search"), c = this.$wrp.find(" > li.search > ul"), e = this.$wrp.find(" > li.search > ul input[type=text]"), f = function (b) { a.$wrp.toggleClass("active", !1 === b || !0 === b ? !b : null); d.toggleClass("active", b); setTimeout(function () { c.toggleClass("active", b) }, 2E3); return !1 }; d.find(" > a > b, button").on("click", function () { return f() }); this.$more.on("click", function () { f(!1) }); var g =
+                function () { setTimeout(function () { return a.$wrp.hasClass("focused") ? !1 : f(!1) }, 100) }; a.$wrp.css("outline", 0).attr("tabindex", 0).on("focusout", function () { a.$wrp.removeClass("focused"); g() }).on("focusin", function () { a.$wrp.addClass("focused") }); d.find(" > a > b").on("click", function () { e.trigger("focus") }); this.getWeather()
+        }, getRightOffset: function (a) { var d = 0; a.prevAll().each(function () { d += b(this).outerWidth() }); return d }, update: function (a) {
+            this.$main.removeClass("fixed"); this.checkTabs(a); this.$mainList.find(" > li:lt(" +
+                this.wrapPoint + ")").addClass(a); this.$main.addClass("fixed active"); this.$moreList.find(" > li:gt(" + --this.wrapPoint + ")").addClass(a).size() && this.$more.addClass(a)
+        }, checkTabs: function (a) {
+            var d = this, c = d.$wrp.width(), e = 0, f = d.menuRightOffset; d.$mainItems.each(function () { var g = b(this), h = g.outerWidth(); !g.is(".parent") || c - f >= d.subWidth + 3 || (f + h >= d.subWidth + 3 ? g.addClass("r" + a) : g.addClass("m" + a)); f += h; h = g.prev("li"); if (h[0] && g.position().top !== h.position().top) return !1; e++ }); alerT(e + "item in row"); this.wrapPoint =
+                e
+        }, getWeather: function () {
+            var a = this, d = { "": "undefined", "\u05e9\u05de": "clear", "\u05d2\u05e9": "rainy", "\u05d2\u05de": "local_rain", "\u05e9\u05e8": "havil", "\u05de\u05d7": "partly_clouded", "\u05de\u05e2": "cloudy", "\u05de\u05d8": "mimtarim", "\u05e9\u05dc": "snow", "\u05e1\u05e8": "storm" }, c = new Map; c.set("1020", "soer"); c.set("1030", "barad"); c.set("1310", "havil"); c.set("1270", "havil"); c.set("1280", "havil"); c.set("1330", "hot"); c.set("1440", "hot"); c.set("1460", "sharav"); c.set("1430", "localRain"); c.set("1040", "snowStorm");
+            c.set("1050", "snowStorm"); c.set("1060", "snow"); c.set("1070", "snow"); c.set("1080", "snow"); c.set("1130", "snow"); c.set("1290", "cold"); c.set("1300", "cold"); c.set("1320", "cold"); c.set("1340", "cold"); c.set("1450", "cold"); c.set("1090", "memtarim"); c.set("1100", "memtarim"); c.set("1110", "memtarim"); c.set("1120", "tiftuf"); c.set("1140", "rainy"); c.set("1150", "rainy"); c.set("1160", "fog"); c.set("1170", "fog"); c.set("1180", "fog"); c.set("1200", "meunan"); c.set("1210", "meunan"); c.set("1220", "meunan"); c.set("1230", "meunan");
+            c.set("1240", "clear"); c.set("1250", "clear"); c.set("1190", "avich"); c.set("1010", "sandStorm"); c.set("1260", "sandStorm"); c.set("1350", "meunanHelkit"); c.set("1370", "meunanHelkit"); c.set("1390", "meunanHelkit"); c.set("1410", "meunanHelkit"); c.set("1360", "meunanHelkit"); c.set("1380", "meunanHelkit"); c.set("1400", "meunanHelkit"); c.set("1420", "meunanHelkit"); a.$forecast = a.$wrp.find("li.forecast"); var e = a.$forecast.find(">a"); a.$forecast.on("click", "li > div > ul:not(.flex-direction-nav), li div.flex-viewport > ul, > ul> li > b",
+                function (a) { e[0].click() }); b.getJSON(a.$forecast.data("feed"), function (c) {
+                    var f = c; c = []; var e = '<li class="weather {imgCase}">{city}<p>{day}&deg;-{night}&deg;<span>{desc}</span></li>'; if (f.cities) {
+                        var n = f.cities; f = f.IssueDate; p = "Haifa,Tel Aviv - Yafo,Jerusalem,Tiberias,Beer Sheva,Elat"; e = '<li class="svg {imgCase}">{city}<p>{day}&deg;-{night}&deg;<span>{desc}</span></li>'; f = f.split(" ")[1]; parseInt(f.split(":")[0]); for (var l = 0; l < n.length; l++)v = n[l].nameEng, -1 != p.indexOf(v) && (f = {
+                            city: n[l].name, day: n[l].dates[0].max,
+                            night: n[l].dates[0].min, imgCase: "icon-" + n[l].dates[0].className, desc: n[l].dates[0].description
+                        }, m = b.interpolate(e, f), "Tel Aviv - Yafo" === v ? (a.$forecast.find(">a>b").html(f[5 < k && 18 > k ? "day" : "night"] + "&deg;").addClass("svg " + f.imgCase), c.unshift(m)) : c.push(m))
+                    } else {
+                        var k = f.Date[0]["@time"].split(":")[0]; n = f.Date[0].City; var p = ",Haifa,Tel Aviv,Jerusalem,Tiberias,Beer Sheba,Eilat,"; for (l = 0; n[l]; l++) {
+                            var v = n[l]["@EnName"] + ","; if (-1 != p.indexOf(v)) {
+                                f = {
+                                    city: n[l]["@name"], day: n[l]["@day"], night: n[l]["@night"],
+                                    imgCase: d[n[l]["@status"]], desc: n[l]["@desc"]
+                                }; var m = b.interpolate(e, f); "Tel Aviv," === v ? (a.$forecast.find(">a>b").html(f[5 < k && 18 > k ? "day" : "night"] + "&deg;").addClass("weather " + f.imgCase), c.unshift(m)) : c.push(m); _className = ""
+                            }
+                        }
+                    } a.$forecast.find(">ul > li > div> ul").html(c.join("")); a.makeSlider()
+                })
+        }, makeSlider: function () { sliders.easy(this.$forecast.find("> ul> li > div"), { prevId: "w-prev", nextId: "w-next", numericId: "w-controls", prevText: "", nextText: "", auto: !1, continuous: !0, speed: 500 }) }
+    }; b.widget("mako.searchify",
+        {
+            options: { max: 60, id: "query", dataURL: "/autocomplete/vodAutocompletion.ashx", count: 0, total: 0, dataType: "json", showFooter: !1 }, _create: function () { b.extend(this.options, this.element.data("search")) }, _init: function () {
+                var a = this, d = a.element, c = d.find(" > form"), e = c.find('> input[type="submit"]'), f = c.find(" > b"), g = c.find(" input[type=text]"), h = b("[data-search]").index(d); c.on("keyup", "input[type=text]", function () { var a = g.val(); f["fade" + (a ? "In" : "Out")](); e[(1 < a.length ? "add" : "remove") + "Class"]("on") }); g.autocomplete({
+                    minLength: 2,
+                    appendTo: ".ui-autocomplete-wrapper:eq(" + h + ")", source: function (c, d) {
+                        var f = { query: c.term, max: a.option("max"), id: a.option("id") }; a.option("type") && (f.type = a.option("type")); b.ajax({
+                            type: "get", url: a.option("dataURL"), dataType: a.option("dataType"), data: f, success: function (c) {
+                                c ? (a.option("count", c.data.length), a.option("total", c.total), d(b.map(c.data, function (a) {
+                                    return a.url ? { label: a.label.replace(/&#39;/g, "'").replace(/&#34;/g, '"'), url: "https://www." + document.domain + a.url } : {
+                                        label: a.label.replace(/&#39;/g,
+                                            "'").replace(/&#34;/g, '"')
+                                    }
+                                }))) : g.autocomplete("close")
+                            }
+                        })
+                    }, select: function (a, b) { g.val(b.item.label); b.item.url ? location.href = b.item.url : e.trigger("click") }, open: function (c, f) {
+                        var e = a.option("count"), g = a.option("total"), h = b(this).data("autocomplete"); h.menu.element.find("a").each(function () { var a = b(this), c = h.term.split(" ").join("|"); a.html(a.text().replace(new RegExp("(" + c + ")", "gi"), "<b>$1</b>")) }); a.option("showFooter") && (e = e == g ? e + " \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05d7\u05d9\u05e4\u05d5\u05e9" :
+                            e + " \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05d7\u05d9\u05e4\u05d5\u05e9 \u05de\u05ea\u05d5\u05da " + g, d.find(".nav-button span").html(e), d.find(".nav-button").show())
+                    }, close: function (a, b) { d.find(".nav-button").hide() }
+                }); e.on("click", function (a) { a.preventDefault(); 1 < g.val().length && (e.removeClass("on").get(0).disabled = !0, c.trigger("submit")); return !1 }); f.on("click", function () { f.fadeOut(); g.autocomplete("close").val("").focus() }); d.is("#VODSuggestions") && (d.on("click", ".ui-menu-close", function () {
+                    g.autocomplete("close");
+                    return !1
+                }), d.find(".ui-autocomplete-wrapper").append('<div class="nav-button ui-menu-close"><button/><span/></div>'))
+            }, _customScroll: function () { Lazy.css("rcs@/css/jquery.jscrollpane.css").js(["rcs@/js/scripts/jquery.jscrollpane.min.js", "rcs@/js/scripts/jquery.mousewheel.pack.js"], function () { $jsp = b(".ui-autocomplete").wrap('<div class="scroll-pane"></div'); b(".scroll-pane").jScrollPane().data("jsp") }) }
+        }); b(function () {
+            Z(b(".scale_image"), { scaleImage: !b.is("ie7"), onClass: "on", filter: "li:not(:has(ul), .header, #liveTeaser,.hr), div.mainItem, .item" });
+            var a = b(".red-button"); S("redPoint", 0) || (setTimeout(function () { a.addClass("active"); setTimeout(function () { a.removeClass("active") }, 5E3) }, 2E3), I("redPoint", 1, 1)); b("[data-search]:not(#vid-searchbar li)").searchify()
+        }); b("#scrollingText")[0] && "articleins" != contentType && m.init(b("#scrollingText")); if (b.is("iTouch") && !b.is("ipad")) var F = b.noop; else b.is("ie7"), F = function () { ba(function () { Q() }, 100) }; b(".top-nav-bar").length && (J.init(), J.update("mv")); A.on("load.refreshView", function () {
+            b.is("ie7") && (J.update("mv"),
+                function (a, b) {
+                    for (var c, d, e, k, l = 0, m = a.length; l < m; l++)if (c = a[l], d = c.style, c = c.currentStyle, d.boxSizing == b || d["box-sizing"] == b || c.boxSizing == b || c["box-sizing"] == b) try {
+                        e = parseInt(c.width, 10) || parseInt(d.width, 10); k = parseInt(c.height, 10) || parseInt(d.height, 10); if (e) { var p = parseInt(c.borderLeftWidth || d.borderLeftWidth, 10) || 0, v = parseInt(c.borderRightWidth || d.borderRightWidth, 10) || 0, q = parseInt(c.paddingLeft || d.paddingLeft, 10), t = parseInt(c.paddingRight || d.paddingRight, 10), r = p + q + t + v; r && (d.width = e - r) } if (k) {
+                            var u =
+                                parseInt(c.borderTopWidth || d.borderTopWidth, 10) || 0, w = parseInt(c.borderBottomWidth || d.borderBottomWidth, 10) || 0, x = parseInt(c.paddingTop || d.paddingTop, 10), y = parseInt(c.paddingBottom || d.paddingBottom, 10); if (c = u + x + y + w) d.height = k - c
+                        }
+                    } catch (ea) { }
+                }(b("*"), "border-box")); if (b.is("iTouch") && b(".top-nav-bar").length) {
+                    var a = b("li.main-menu.fixed"); a.wrapInner('<div id="makeMeScrollable"></div>'); a.prepend('<div class="hotSpotRightVisible"></div><div class="hotSpotLeftVisible"></div>'); var d = 0; b("> ul > li", "#makeMeScrollable").each(function () {
+                        d +=
+                        b(this).outerWidth()
+                    }); b("> ul", "#makeMeScrollable").css("width", d); b("#makeMeScrollable").width() >= b("> ul", "#makeMeScrollable").width() && (b(".hotSpotLeftVisible").hide(), b(".hotSpotRightVisible").hide()); Lazy.js("rcs@/js/smartphones/iscroll-lite.js", function () {
+                        var a = new iScroll("makeMeScrollable", {
+                            bounce: !1, useTransform: !1, useTransition: !0, onScrollMove: function (c) {
+                                0 == a.x ? (b(".hotSpotLeftVisible").hide(), b(".hotSpotRightVisible").show()) : a.x == d ? (b(".hotSpotLeftVisible").show(), b(".hotSpotRightVisible").hide()) :
+                                    (b(".hotSpotLeftVisible").show(), b(".hotSpotRightVisible").show())
+                            }
+                        }); a.scrollToElement("li:nth-child(3)", 0); b("> ul", "#makeMeScrollable").show(); var d = a.x
+                    })
+                } F(); A.on("resize.refreshView", function () { O == A.height() && P == A.width() ? alerT("clear resize") : (O = A.height(), P = A.width(), F()) })
+        }); Lazy.css("rcs@/css/jquery.fancybox2.css").js(["rcs@/js/neo/neoMakoLogin.js", "rcs@/js/scripts/jquery.fancybox2.js"], function () {
+            b.fancybox.defaults.margin = 0; k.makoLogin.init(b(".top-nav-bar li.login").data("login")); x.ready(function () {
+                k.submitPageRecord(vcmidOfContent,
+                    currentChannelId)
+            }); b("a[href*=redMailLobby]").addClass("fancybox.ajax"); b("a[class*=fancybox]").fancybox({ width: "auto", padding: 0 })
+        }); k.refreshView = F; b(".ie7 .top-nav-bar").parents(".mako_main_panel_table").css({ zIndex: 1 }); k.hidePlasmaIframe = function (a) {
+            try { var d = b("#CM8Iframe" + a).parents("[id^=CM8ShowAd]"); d = 0 != d.length || b("[id$=_" + a + "]").parents("[id$=_" + a + "]"); "mako.home" == MakoCat && (d = d.parent()); d.remove() } catch (c) { } try {
+                "mako.home" == MakoCat ? k.CM8AjaxRefresh("JAMBO1_728X90,JAMBO1_970X90,OZEN1_120X600,TOP_LEFT1_468X60,TOP_RIGHT1_234X60") :
+                k.CM8AjaxRefresh("JAMBO1_728X90,JAMBO1_970X90,TOP_LEFT1_468X60,TOP_RIGHT1_234X60")
+            } catch (c) { }
+        }; b.fn.JSONOrdering = function (a) {
+            a = b.extend({ URL: "" }, a, b(this).data("plugin-options")); return this.each(function () {
+                function d() { Lazy.js("rcs@/js/jcarousellite_1.8.5.min.js", function () { f.closest(".carousel").jCarouselLite({ btnNext: ".carousel-next", btnPrev: ".carousel-prev", speed: 500, visible: 5, easing: "swing", preventTouchWindowScroll: !1 }) }) } function c() {
+                    Lazy.js("rcs@/js/scripts/jquery.dotdotdot.min.js", function () {
+                        b("h5 a",
+                            f).dotdotdot()
+                    })
+                } var e = "", f = b(this); var g = f.html().replace("\x3c!--", "").replace("--\x3e", ""); b.getJSON(a.URL, function (h) { for (var k = h.items.length, l = 0; l < k; l++) { var m = e; var p = h.items[l]; p = b.interpolate(g, { title: p.title, link_href: p.link.href, link_target: p.link.target, img_src: p.img.src, img_alt: p.img.alt, has_video: p.contenttype ? "has-video" : "" }); e = m + p } f.html(e); a.isCarousel && d(); a.isCarousel && c(); a.isCarousel && b("li", f).addClass("hover") })
+            })
+        }; b(".jsonOrdering").JSONOrdering(); m = b(".bottom_line_neo.noCarousel");
+    m.JSONOrdering({ URL: m.data("url") }); m = function () { return { init: function () { var a = b("div.bottom_line_neo"); a.empty(); a[0].className = ""; "Homepage" != window.contentType && "articleins" != window.contentType && (a.addClass("OUTBRAIN"), a.attr("data-widget-id", "SFC"), a.attr("data-ob-template", "mako"), Lazy.js("//widgets.outbrain.com/outbrain.js")) } } }(); b(".carousel .bottom_line_neo")[0] && m.init(); Lazy.js("rcs@/js/jquery.inview.min.js"); if ("Lobby" == contentType || "Vertical" == contentType || "Subvertical" == contentType ||
+        "5013018ce801a410VgnVCM2000002a0c10acRCRD" == currentChannelId) { m = vcmidOfContent && b('ul.navigation_row li a[vcmID="' + vcmidOfContent + '"]'); var q = b('ul.navigation_row li a[href$="' + location.pathname.split("mako.co.il").pop() + '?partner=SecondNav"]'); m && m.length && m.addClass("selected"); q && q.length && q.addClass("selected") } !k.mainChannelId || "664fc865ef6ac510VgnVCM2000002a0c10acRCRD" != mainChannelId && "5ef20518b1dbe510VgnVCM2000002a0c10acRCRD" != mainChannelId || b("nav.responsive ul li:not(.logo) a").each(function () {
+            var a =
+                b(this).attr("href"); if (a) { a = a.split("?partner")[0]; var d = location.href; -1 != d.indexOf("-") && -1 != a.indexOf("-") ? -1 != d.indexOf(a) && b(this).addClass("selected") : -1 == d.indexOf("-") && b("nav.responsive ul li:nth-child(2) a").addClass("selected") }
+        }); m = function () {
+            function a() {
+                var a = u.getElementById("email"); var d = b(".err", "#sendToFriend_form")[0], f = a.value; null == f || 0 == f.length ? (d.innerHTML = "\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0\u05d4 \u05db\u05ea\u05d5\u05d1\u05ea \u05dc\u05de\u05e9\u05dc\u05d5\u05d7", d.style.display =
+                    "inline", a.className = "err_input", a = 0) : /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i.test(a.value) ? (d.innerHTML = "", a.className = "", a = 1) : (d.innerHTML = "\u05db\u05ea\u05d5\u05d1\u05ea \u05dc\u05de\u05e9\u05dc\u05d5\u05d7 \u05d0\u05d9\u05e0\u05d4 \u05ea\u05e7\u05d9\u05e0\u05d4",
+                        d.style.display = "inline", a.className = "err_input", a = 0); return a ? (a = u.getElementById("senderName"), d = b(".err", "#sendToFriend_form")[0], "" == a.value ? (d.innerHTML = "\u05e9\u05dd \u05e8\u05d9\u05e7", d.style.display = "inline", a.className = "err_input", a = !1) : (d.innerHTML = "", a.className = "input", a = !0), a ? !0 : !1) : !1
+            } function d() {
+                if (a()) {
+                    var c = b("#sendToFriend_form"); c.find("#senderNameEncoded").val(encodeURIComponent(c.find("#senderName").val())); c.find("#friendNameEncoded").val(encodeURIComponent(c.find("#friendName").val()));
+                    c.find("#messageEncoded").val(encodeURIComponent(c.find("#message").val())); c.find("#channelId").val(currentChannelId); b.ajax({ type: "post", url: c.attr("action"), data: c.serializeArray(), success: function () { b.fancybox.close() } })
+                }
+            } return { init: function () { b("body").on("click", "#sendToFriend_form .submit", function () { d() }) } }
+        }(); (b('a[data-network="email"]').length || b("div.vid-gallery").length || b("#search-results-v_2017").length) && m.init(); Lazy.js("//www.mako.co.il/hankschrader/jessepinkman/heisenberg"); k.OHEADER =
+        {
+            $wrp: b("ul.neo_header_teasers.ajax"), init: function () { if (this.$wrp[0]) { var a = this; a.tmpl = a.$wrp.html().replace("\x3c!--", "").replace("--\x3e", ""); b.getJSON(a.$wrp.data("url"), function (b) { if (b && b.items) { for (var c = b.items.length, d = [], f, g = 0; g < c && 3 > g; g++)f = b.items[g], d.push(a.buildList(f)); a.$wrp.hide().html(d.join("")).fadeIn("slow") } }) } }, buildList: function (a) {
+                return b.interpolate(this.tmpl, {
+                    vcmid: a.vcmid, chid: a.chid, title: a.title, link_class: a.isFancy ? "class='fancybox.iframe'" : "", link_title: a.title,
+                    link_href: a.link.href, link_target: a.link.target, img_alt: a.img.alt, img_src: a.img.src
+                })
+            }
+        }; OHEADER.init(); k.DFP && k.DFP.addMonsters && DFP.addMonsters("300X250"); k.cookieUtils = k.cookieUtils || { get: function () { return safeLocalStorage.makoGetUniqueId() } }; var T = function () {
+            k.Lazy.js("rcs@/js/player/neoVideoPlayerSwitch.js", function () {
+                (T = function (a) {
+                    a = a || b("li.video[data-widget=player]:not(.ready)"); if (!a.length) return !1; a.each(function () {
+                        var a = b(this).addClass("ready"), c = a.data("vch"); c = {
+                            $container: a, $mockup: a.find("> *"),
+                            vcmid: a.data("vid"), videoChannelId: c, galleryChannelId: a.data("gch") || c
+                        }; c = b.extend({ domain: "http://" + u.location.hostname, statRcs: k.staticResourcesUriPrefix, isLive: !1, vidSetup: { controls: !0, autoplay: !1, preload: "none", cancelAutoplayWithoutPreroll: !1 }, referrer: k.makoReferrer }, c); var e = a.data("vidsetup"); e && (c.vidSetup = b.extend(c.vidSetup, e)); var f = a.data("vidparams"); e && (c = b.extend(c, f)); if (e = a.data("playerOptions")) f = a.find(e.$container), a = a.find(e.$mockup), f.length && (e.$container = f), a.length && (e.$mockup =
+                            a), c = b.extend(c, e); return k.videoEngine(c)
+                    })
+                })()
+            })
+        }(); x.on("build-players", function () { T() }); (function () {
+            var a = new Date; b("div.itemsWrap ul li.hover span[data-datetime],ul.topItemsWrap li.hover span[data-datetime],.mainItem pre span[data-datetime],#neoTagFlodding li span[data-datetime]").each(function () {
+                var d = 1 * b(this).data("datetime"), c = new Date(d); d = a.getTime() - d; 0 == Math.floor(d / 864E5) ? (d = ("0" + c.getHours()).slice(-2), c = ("0" + c.getMinutes()).slice(-2), b(this).find("span:eq(0)").before(d + ":" + c)) : b(this).find("span:eq(0)").before(("0" +
+                    c.getDate()).slice(-2) + "." + ("0" + (c.getMonth() + 1)).slice(-2) + "." + ("0" + c.getYear() % 100).slice(-2))
+            })
+        })(); (function () {
+            function a(a, c, d) { var f = a.attr("action"); a = JSON.stringify(a[0]); b.ajax({ type: "post", url: f, data: a, contentType: !1, processData: !1, success: function (a) { (c || b.noop)(a) }, error: function (a) { (d || b.noop)(a) } }) } if ("Subvertical" == contentType) {
+                var d = b("form#liefArticleFlodding"), c = 1 * b("input[name=page]", d).val(); d = 1 * b("input[name=max]", d).val(); 0 < d && c > d && (location.href = location.href.replace(new RegExp("([?|&])page=" +
+                    c), ""))
+            } b(".madorimWrap").length && Lazy.js("rcs@/js/scripts/jquery.dotdotdot.min.js", function () { j$(".madorOrdering strong").dotdotdot() }); "undefined" == typeof b.fn.socialShare && !b("body").hasClass("articleins") && b(".social-share").length && Lazy.js("rcs@/js/scripts/socialshare.min.js", function () { b(".social-share").socialShare() }); x.on("change", 'input[type="file"]', function () { var a = b(this); a.get(0).files && a.get(0); a = a.val() || "\u05dc\u05d0 \u05e0\u05d1\u05d7\u05e8 \u05e7\u05d5\u05d1\u05e5"; b("#file").text(a) });
+            x.on("click", "#lb_redMail_form .submit", function (c) {
+                c.preventDefault(); b("label").removeClass("err"); if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(b("#mail").val())) return b("label[for=mail]").addClass("err"), !1; if (1 > b("#info").val().length) return b("label[for=info]").addClass("err"), !1; if (c = b("input[type=file]").val()) { c = c.split("."); if (!c) return b("label[for=file]").addClass("err"), !1; c = c[c.length - 1]; if (!c || !/^(jpg|bmp|png|gif)$/i.test(c)) return b("label[for=file]").addClass("err"), !1 } if (!b("#terms")[0].checked) return b("label[for=takanon]").addClass("err"),
+                    !1; e("from", "senderNameCoded"); e("info", "informationCoded"); a(b(this), function (a) { b.fancybox("<strong>\u05d4\u05de\u05d9\u05d3\u05e2 \u05e0\u05e9\u05de\u05e8 \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4</strong>", { width: "auto", padding: 0, wrapCSS: "redMailSuccess", afterShow: function () { setTimeout(function () { b.fancybox.close() }, 3E3) } }) })
+            }); var e = function (a, c) { var d = b("#" + a).val(); d = encodeURIComponent(d); b("#" + c).val(d) }
+        })(); var U = b("ul.pgwSlideshowLight"); U.length && Lazy.js(["//cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js",
+            "//cdnjs.cloudflare.com/ajax/libs/gsap/latest/jquery.gsap.min.js", "rcs@/js/components/pgwSlider/pgwslideshow.js"], function () { U.pgwSlideshow() }); m = b("div.itemsWrap ul li.chname label > a"); m.length && m.on("mouseenter mouseleave", function () { b(this).parents("div.itemsWrap > ul > li.chname").toggleClass("hover") }); var V = b("div.free-items ul.generic li.special pre a p,div.free-items ul.generic li.classic pre a p,.mainItem pre a p"); V.length && Lazy.js("rcs@/js/scripts/jquery.dotdotdot.min.js", function () { V.dotdotdot() });
+    $slider = b(".lobby .timeLine .slider>ul").parent(); if ($slider[0]) {
+        m = b(".slider ul li").length; var B = Math.ceil(m / 8) - 1, da = { slideshow: !1, animation: "slide", controlNav: !1, reverse: !1, startAt: B, directionNav: !1, selector: "ul > li", minItems: 7, maxItems: 7, itemMargin: 0, move: 7, start: function () { E(-1) }, animationLoop: !1 }; Lazy.js("rcs@/js/scripts/jquery.flexslider-min.js", function () { $slider.flexslider(da); $slider.fadeIn() }); b(".arrow_next").addClass("disabled"); b(".update_button").addClass("disabled"); b(".update_button_text").addClass("disabled");
+        0 == B ? b(".arrow_prev").addClass("disabled") : (b(".arrow_next").on("click", function (a) { a.preventDefault(); $slider.data("flexslider").currentSlide != B && (0 == $slider.data("flexslider").currentSlide && b(".arrow_prev").removeClass("disabled"), $slider.data("flexslider").currentSlide == B - 1 && (b(".arrow_next").addClass("disabled"), b(".update_button").addClass("disabled"), b(".update_button_text").addClass("disabled")), E($slider.data("flexslider").currentSlide + 1), $slider.flexslider("next")) }), b(".arrow_prev").on("click",
+            function (a) { a.preventDefault(); 0 != $slider.data("flexslider").currentSlide && ($slider.data("flexslider").currentSlide == B && (b(".arrow_next").removeClass("disabled"), b(".update_button").removeClass("disabled"), b(".update_button_text").removeClass("disabled")), 1 == $slider.data("flexslider").currentSlide && b(".arrow_prev").addClass("disabled"), E($slider.data("flexslider").currentSlide - 1), $slider.flexslider("previous")) }), b(".update_button").on("click", function (a) {
+                a.preventDefault(); E(-1); $slider.flexslider(B);
+                b(".update_button").addClass("disabled"); b(".update_button_text").addClass("disabled"); b(".arrow_next").addClass("disabled"); b(".arrow_prev").removeClass("disabled")
+            }))
+    } Lazy.js("rcs@/js/scripts/mako_ga.js", function () {
+        makoEventTracker.addGAEvent(!0, '.social-share a[data-network="facebook"]', "click", "SocialEvents", "Share FB - Teaser", D); makoEventTracker.addGAEvent(!0, '.social-share a[data-network="gplus"]', "click", "SocialEvents", "Share Google+ - Teaser", D); makoEventTracker.addGAEvent(!0, '.social-share a[data-network="whatsapp"]',
+            "click", "SocialEvents", "Share Whatsapp - Teaser", D); makoEventTracker.addGAEvent(!0, '.social-share a[data-network="twitter"]', "click", "SocialEvents", "Share Twitter - Teaser", D); makoEventTracker.addGAEvent(!0, '.social-share a[data-network="email"]', "click", "SocialEvents", "Share Mail - Teaser", D); b && b("#secondaryOrderingBraoadcasting").length && (b("#secondaryOrderingBraoadcasting .mainLI.Sun a"), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(0)", "click", "TV Schedule Comp",
+                "Click Day | Click Show", "\u05e8\u05d0\u05e9\u05d5\u05df | " + b("#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d0\u05e9\u05d5\u05df | " + b("#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(2)", "click", "TV Schedule Comp",
+                    "Click Day | Click Show", "\u05e8\u05d0\u05e9\u05d5\u05df | " + b("#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d0\u05e9\u05d5\u05df | " + b("#secondaryOrderingBraoadcasting .mainLI.Sun a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(0)", "click", "TV Schedule Comp",
+                        "Click Day | Click Show", "\u05e9\u05e0\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05e0\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show",
+                            "\u05e9\u05e0\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05e0\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Mon a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(0)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05dc\u05d9\u05e9\u05d9 | " +
+                                b("#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05dc\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05dc\u05d9\u05e9\u05d9 | " +
+                                    b("#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05dc\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Tue a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(0)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d1\u05d9\u05e2\u05d9 | " +
+                                        b("#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d1\u05d9\u05e2\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d1\u05d9\u05e2\u05d9 | " +
+                                            b("#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e8\u05d1\u05d9\u05e2\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Wed a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(0)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05d7\u05de\u05d9\u05e9\u05d9 | " +
+                                                b("#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05d7\u05de\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05d7\u05de\u05d9\u05e9\u05d9 | " +
+                                                    b("#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05d7\u05de\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Thu a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(0)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(0) .tooltiptext").text()),
+                makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(1)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0,
+                    "#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(3)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d9\u05e9\u05d9 | " + b("#secondaryOrderingBraoadcasting .mainLI.Fri a:nth(3) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(0)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d1\u05ea | " + b("#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(0) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(1)",
+                        "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d1\u05ea | " + b("#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(1) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(2)", "click", "TV Schedule Comp", "Click Day | Click Show", "\u05e9\u05d1\u05ea | " + b("#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(2) .tooltiptext").text()), makoEventTracker.addGAEvent(!0, "#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(3)", "click", "TV Schedule Comp",
+                            "Click Day | Click Show", "\u05e9\u05d1\u05ea | " + b("#secondaryOrderingBraoadcasting .mainLI.Sat a:nth(3) .tooltiptext").text()))
+    }); m = b(".TVSlider"); var K = !1; m.length && m.each(function (a) {
+        function d() {
+            b(".TVSlider.secondaryOrderingSlider .carousel ul.slider:nth(0) > li:not(.active) video").each(function () { this.paused || (this.pause(), this.loop = !1) }); 0 < b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").length && b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").get(0).paused &&
+                (b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").get(0).play(), b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").get(0).loop = !0)
+        } var c = b(this), e = c.html(); c.append(e); c.find("p").eq(1).remove(); var f = c.find(".carousel").eq(0), g = c.find(".carousel").eq(1).addClass("sec"); f.find("h2,h3").remove(); g.find("a.pic").remove(); e = {
+            prevId: "tvslider-" + a + "-primary-prev", nextId: "tvslider-" + a + "-primary-next", numericId: "tvslider-" + a + "-primary-controls", prevText: "",
+            nextText: "", auto: !0, pause: 1E4, continuous: !0, speed: 500
+        }; var h = { prevId: "tvslider-" + a + "-secondary-prev", nextId: "tvslider-" + a + "-secondary-next", numericId: "tvslider-" + a + "-secondary-controls", prevText: "", nextText: "", auto: !0, pause: 1E4, continuous: !0, speed: 500 }; f.find("ul.slider").attr("id", "tvslider-" + a + "-primary"); g.find("ul.slider").attr("id", "tvslider-" + a + "-secondary"); sliders.easy(f, e); sliders.easy(g, h); c.on("click", "#tvslider-" + a + "-primary-next a", function () { b("a", "#tvslider-" + a + "-secondary-next").trigger("click") }).on("click",
+            "#tvslider-" + a + "-primary-prev a", function () { b("a", "#tvslider-" + a + "-secondary-prev").trigger("click") }).show(); b("div.carousel ul").bind("sliderStartAnimation", function (a) { d(a.current) }); b(".TVSlider.secondaryOrderingSlider ul.slider").bind("stopAnimation", function (a) { f.trigger("pauseEasySlider"); g.trigger("pauseEasySlider"); d() }); var k = !1; b(".TVSlider.secondaryOrderingSlider div.carousel").one("EasySliderDone", function () {
+                f.trigger("pauseEasySlider"); g.trigger("pauseEasySlider"); b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li:nth(1)").addClass("active");
+                k || (k = !0)
+            }); b(".TVSlider.secondaryOrderingSlider div.carousel:not(.sec)").on("inview", function (a, c) {
+                c && k ? 0 < b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").length ? (d(), f.trigger("pauseEasySlider"), g.trigger("pauseEasySlider")) : (f.trigger("resumeEasySlider"), g.trigger("resumeEasySlider")) : 0 < b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").length ? b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").get(0).paused || b(".TVSlider.secondaryOrderingSlider .carousel ul.slider > li.active video").get(0).pause() :
+                    (f.trigger("pauseEasySlider"), g.trigger("pauseEasySlider"))
+            }); (function (a, b) { a.fn.inViewport = function (c) { return this.each(function (d, e) { var f = a(e).outerHeight(), g = a(b).height(), h = e.getBoundingClientRect(), k = h.top; h = h.bottom; c.call(e, Math.max(0, 0 < k ? Math.min(f, g - k) : h < g ? h : g)) }) } })(jQuery, window)
+    }); var r = b("#regularFoodSearchFRM"); if (r.length) {
+        Lazy.css("rcs@/css/jquery.multiselect.css").js("rcs@/js/scripts/jquery.multiselect.min.js", function () {
+            b("select#food_simple_search_category").multiselect({
+                header: !1,
+                multiple: !1, classes: "neoRecipe", noneSelectedText: "\u05db\u05dc\u05dc\u05d9", height: "auto", selectedText: "# Method Selected", selectedList: 1, show: ["fade", 700], hide: ["fade", 700]
+            }); r.addClass("ready")
+        }); var L = r.find(" > b"), y = r.find("input[type=text]"), W = r.find("#searchstring_input"), z = r.find("button.searchBtn"), X = r.find("#formType"), C = b("select", r).find("option:selected").text(), Y = !1; b(document).ready(function () { z.removeClass("active") }); b("body").on("mouseleave", ".ui-multiselect-menu.neoRecipe", function () { b("select#food_simple_search_category").multiselect("close") });
+        b("select,input[type='text']", r).each(function () { var a = b(this).val(); null != a && "" != a && z.addClass("active") }); r.on("keyup", y, function () { var a = y.val(); L["fade" + (a ? "In" : "Out")](); Y ? z.addClass("active") : 1 < y.val().length ? z.addClass("active") : "\u05db\u05dc\u05dc\u05d9" == C && z.removeClass("active") }); L.on("click", function () { L.fadeOut(); y.val("").focus() }); r.on("change", "select", function (a) {
+            a = b(a.target); var d = a.val(); C = a.find("option:selected").text(); (Y = null != d && "" != d) || 1 < y.val().length ? z.addClass("active") :
+                z.removeClass("active")
+        }); r.on("submit", function () { X.val("regularFoodSearchFRM"); 2 > y.val().length ? "\u05db\u05dc\u05dc\u05d9" != C && (b("#searchstringS").val(C), W.val(C)) : ("\u05db\u05dc\u05dc\u05d9" == C && X.val(""), W.val(y.val()), b("#searchstringS").val(y.val())); if (!z.hasClass("active")) return !1 })
+    } Lazy.js("rcs@/js/gtm.inview.js"); b("select#city").length && Lazy.css("rcs@/css/jquery.multiselect.css").js("rcs@/js/scripts/jquery.multiselect.min.js", function () {
+        b("select#city").multiselect({
+            header: !1, multiple: !1,
+            classes: "neo-local-cities", noneSelectedText: "\u05ea\u05dc \u05d0\u05d1\u05d9\u05d1 - \u05d9\u05e4\u05d5", height: "auto", selectedText: "# Method Selected", selectedList: 1
+        }).on("change", function () { b("#neoLocalForcast")[0].submit() })
+    }); b("input#wcity", "#neoWorldForcast").autocomplete({ source: b("input#wcity").data("cities"), appendTo: ".autocomplete-result", select: function (a, d) { setTimeout(function () { b("input#wcity").closest("form")[0].submit() }, 5) } }); b.ui.autocomplete.prototype._renderItem = function (a, d) {
+        var c =
+            d.label.replace(this.term, "<b>" + this.term + "</b>"); return b("<li></li>").data("item.autocomplete", d).append("<a>" + c + "</a>").appendTo(a)
+    }; b.getUrlVar("city") && safeLocalStorage.setItem("mako_weather_localcity_name", b.getUrlVar("city")); if (b("#neoLocalForcast").length && !b.getUrlVar("city") && safeLocalStorage.getItem("mako_weather_localcity_name")) {
+        m = []; q = b("[data-cities]", ".localForcastWrap").data("cities"); var t = decodeURIComponent(safeLocalStorage.getItem("mako_weather_localcity_name").replace(/\+/g,
+            "%20")); console.log(t); for (var G = 0; G < q.length; G++)if (t == q[G].name) { b("select", "#neoLocalForcast").val(t); q = q[G].dates; for (t = 0; t < q.length; t++)m.push(['<li class="icon ', q[t].code, '"><div class="txt"><time>', 0 == t ? "" : q[t].day + " " + q[t].date, '</time><div class="flex"><small>', q[t].description, "</small><i>", q[t].min + "<span>\u00b0-</span>" + q[t].max + "<span>\u00b0</span>", "</i></div></div></li>"].join("")); b("[data-cities]", ".localForcastWrap").html(m.join("")); break }
+    } (function (a) {
+        a.fn.viewportChecker = function (b) {
+            var c =
+                { classToAdd: "visible", classToRemove: "invisible", offset: 100, repeat: !1, invertBottomOffset: !0, callbackFunction: function (a, b) { }, scrollHorizontal: !1, scrollBox: window }; a.extend(c, b); var d = this, f = a(c.scrollBox).height(), g = a(c.scrollBox).width(), h = document.scrollingElement ? document.scrollingElement : document.body; this.checkElements = function () {
+                    if (c.scrollHorizontal) { var b = a(h).scrollLeft(); var e = b + g } else b = a(h).scrollTop(), e = b + f; d.each(function () {
+                        var d = a(this), f = {}; a.extend(f, c); a.extend(f, {}); var g = f.scrollHorizontal ?
+                            d.offset().left : d.offset().top; f.scrollHorizontal ? d.width() : d.height(); g = Math.round(g) + f.offset; var h = f.scrollHorizontal ? g + d.width() : g + d.height(); f.invertBottomOffset && (h -= 2 * f.offset); g < e && h > b ? (d.removeClass(f.classToRemove), d.addClass(f.classToAdd)) : d.hasClass(f.classToAdd) && f.repeat && d.removeClass(f.classToAdd + " " + f.classToAddForFullView)
+                    })
+                }; a(c.scrollBox).bind("load scroll", this.checkElements); a(window).resize(function (b) { f = a(c.scrollBox).height(); g = a(c.scrollBox).width(); d.checkElements() }); this.checkElements();
+            return this
+        }
+    })(jQuery); b(document).ready(function () { M(); window.addEventListener("scroll", function () { M() }) }); b(document).ready(function () { if (0 != b("li video.live-video").length === !0) b("li video.live-video").on("inview", function (a, b) { b ? this.play() : this.pause() }) }); b(".innerFirstArticleVideo").length && (K = !0, b(u).on("play-state.html5", function (a, d, c) {
+        if (b(".innerFirstArticleVideo").length && b(".html5_player .startPlay").length) {
+            var e = []; b.each(b(".innerFirstArticleVideo"), function () {
+                e.push(b(this).attr("id").replace("videoHidden",
+                    "vid_holder_"))
+            }); b("#" + e[0]).addClass("inview"); if (b("#" + e[0] + ".inview .startPlay").length) b("#" + e[0] + ".inview").one("inview", function (a, c) { c && K && !b(this).find(".startPlay").hasClass("off") && (b(this)[0].player._play(!0), b("#" + e[0]).removeClass("inview"), K = !1) })
+        }
+    })); b(document).ready(function () { b(".center-it").length && b(".center-it").click(function () { b("html, body").animate({ scrollTop: window.innerHeight }, 100, "swing") }) }); b(document).ready(function () {
+        var a = b(".neo.lobby #secondaryOrderingBraoadcasting ul > li").length;
+        0 < a && (a = 7.14 * (7 - a), b("#secondaryOrderingBraoadcasting .mainUl").css("margin-right", a + "%"))
+    }); b(document).ready(function () {
+    0 < b(".worldForcastWrap").length && (b(".worldForcastWrap form").append("<div id='worldForcastError' style='position: absolute; margin-top: -20px; color: red;'></div>"), b(".worldForcastWrap form").append("<span class='close'></span>"), "" !== b(".worldForcastWrap form input").val() && b(".worldForcastWrap form .close").show(), b(".worldForcastWrap form input").on("keydown", function () { b(".worldForcastWrap form .close").show() }),
+        b(".worldForcastWrap form input").on("keyup", function () { "" == b(this).val() && b(".worldForcastWrap form .close").hide() }), b(".worldForcastWrap form .close").on("click", function () { b(".worldForcastWrap form input").val(""); b(".worldForcastWrap form .close").hide() }), b(".worldForcastWrap form").on("submit", function (a) {
+            a.preventDefault(); b(".autocomplete-result .ui-autocomplete").is(":hidden") ? b("#worldForcastError").text("\u05d0\u05e0\u05d0 \u05d4\u05d6\u05df \u05e2\u05e8\u05d9\u05dd \u05e9\u05d1\u05e8\u05e9\u05d9\u05de\u05d4") :
+                b("#worldForcastError").text("\u05d0\u05e0\u05d0 \u05d1\u05d7\u05e8 \u05e2\u05e8\u05d9\u05dd \u05de\u05d4\u05e8\u05e9\u05d9\u05de\u05d4")
+        }))
+    }); b(document).ready(function () {
+    0 < b(".recipeIngredients").length && b.ajax({
+        url: "/ajaxPage?jspName=goldenWords.jsp", dataType: "json", success: function (a) {
+            var d = []; a.adWords && b.each(a.adWords, function (a, e) {
+                var c = !0, g = parentsChannels.split(","); for (h = 0; h < e.ChannelVcmIds.length; ++h)-1 != b.inArray(e.ChannelVcmIds[h], g) && (c = !1); if (c || -1 != b.inArray(e.Expression, d)) return !0;
+                if (e.Expression, -1 != d.indexOf(" ")) { c = e.Expression.split(" "); var h = 0; for (g = c.length; h < g; h++)d.push(c[h]) } if (-1 != b.inArray(e.Expression, d)) return !0; if ("" != e.Expression) {
+                    N(e.Expression, e.Advertiser); var k = "undefined" != typeof e.Url && "" != e.Url ? "with link" : "without link"; elementUrl = "undefined" != typeof e.Url && "" != e.Url ? e.Url : "javascript:void(0)"; h = e.Expression.replace(/ /g, ""); b(".recipeIngredients > li .marker[data-related=" + h + "]").wrap("<div class='wordWrappwer'></div>"); b(".recipeIngredients > li .marker[data-related=" +
+                        h + "]").append('<a  data-with="' + k + '" data-advertiser="' + e.Advertiser + '" data-goldword="' + e.Expression + '"  href="' + elementUrl + '" target="_blank"><div class="Wrapper"><div style="background:url(' + e.ImageUrl + ');width:219px;height:142px;background-size: 100%;background-repeat: no-repeat;background-color: #eef0f0;"></div></div><span style="position:absolute;left: -600000px;">' + e.Expression + "-" + e.Advertiser + "</span></a>")
+                } for (h = 0; h < e.RelatedExpressions.length; ++h)"" != e.RelatedExpressions[h] && -1 == b.inArray(e.RelatedExpressions[h],
+                    d) && N(e.RelatedExpressions[h], e.Advertiser); for (h = 0; h < e.RelatedExpressions.length; ++h)"" != e.RelatedExpressions[h] && -1 == b.inArray(e.RelatedExpressions[h], d) && (c = e.RelatedExpressions[h].replace(/ /g, ""), b(".recipeIngredients > li .marker[data-related=" + c + "]").wrap("<div class='wordWrappwer'></div>"), b(".recipeIngredients > li .marker[data-related=" + c + "]").append('<a  data-with="' + k + '" data-advertiser="' + e.Advertiser + '" data-goldword="' + e.RelatedExpressions[h] + '"  href="' + elementUrl + '" target="_blank"><div class="Wrapper"><div style="background:url(' +
+                        e.ImageUrl + ');width:219px;height:142px;background-size: 100%;background-repeat: no-repeat;background-color: #eef0f0;"></div></div><span style="position:absolute;left: -600000px;">' + e.RelatedExpressions[h] + "-" + e.Advertiser + "</span></a>")); for (h = 0; h < e.RelatedExpressions.length; ++h)if ("" != e.RelatedExpressions[h] && d.push(e.RelatedExpressions[h]), e.RelatedExpressions[h], -1 != d.indexOf(" ")) for (c = e.Expression.split(" "), h = 0, g = c.length; h < g; h++)d.push(c[h])
+            }); b(".recipeIngredients > li .marker .fancybox").off("mouseenter");
+            b(".recipeIngredients .fancybox .wordWrappwer").parent().removeClass("fancybox")
+        }
+    })
+    }); b(document).on("hover", ".recipeIngredients > li .marker", function () { b(this).find(".Wrapper").css("visibility", "visible") }); b(document).on("mouseleave", ".recipeIngredients > li .marker", function () { b(this).find(".Wrapper").css("visibility", "hidden") }); b(document).on(".mouseenter", ".recipeIngredients > li .marker", function () {
+        var a = b(this).find("a").data("goldword"), d = b(this).find("a").data("advertiser"), c = b(this).find("a").data("with");
+        window.dataLayer = window.dataLayer || []; dataLayer.push({ event: "Gold Word", category: "Inview Gold word " + c, Action: a + "-" + d, label: location.href })
+    })
+})(window, document, window.jQuery);

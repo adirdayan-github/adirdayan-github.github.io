@@ -1,0 +1,603 @@
+﻿// Consts.
+var countriesListElement = $(".countries-selection-list");
+var countriesSelectedListElement = $(".countries-selected-list");
+
+var HISTORY_GRAPH_COLORS = [
+    '#2a339b', '#95ca5a', '#db0000', '#2a939b', '#a652ba', '#0c0c0c', '#ff7300', '#ed4338', '#e85ce4', '#3d9c48'
+];
+
+// Data members.
+var _historyGraphChart;
+var _selectedCountries;
+var _historyGraphData;
+var _historyStartDate = new moment('2020-03-15 00:00:00');
+
+// Graph labels.
+var Y_SPACING_CHECK = 10;
+var Y_SPACING_JUMP = 12;
+
+// Init.
+$(document).ready(function () {
+    // Open country popup.
+    $("#add-country-to-graph").click(function () {
+        // Clean selections.
+        ClearCountriesSelection();
+
+        // Clear text filter.
+        $("#country-search").val("");
+        $("#country-search").trigger("input");
+
+        // Selected the previously selected.
+        $.each(_selectedCountries, function (key, value) {
+            countriesListElement.find("li input[data-id='" + value + "']").click();
+            //console.log(countriesListElement.find("li input[data-id='" + value + "']"));
+        });
+
+        // Show.
+        $(".countries-modal").show();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה על הוסף מדינה');
+    });
+
+    // Close button.
+    $(".btn-close-graph-filters-modal").click(function () {
+        $(".graph-filters-modal").hide();
+    });
+
+    // Clear button.
+    $(".clear-countries-list").click(function () {
+        ClearCountriesSelection();
+    });
+
+    // Search filter.
+    $("#country-search").on("input", function () {
+        var searchTerm = $(this).val();
+
+        // Force 2 characters minimum.
+        if (searchTerm.length <= 2) {
+            countriesListElement.find("li:not(.template)").removeClass("d-none");
+        } else {
+            countriesListElement.find("li:not(.template)").addClass("d-none");
+            countriesListElement.find("li[data-name*='" + searchTerm + "']:not(.template)").removeClass("d-none");
+        }
+    });
+
+    // Approve button.
+    $(".countries-modal .graph-filters-dialog-submit").click(function () {
+        // Select the countries.
+        var vals = $.map(countriesListElement.find("input:checked"), function (li) {
+            return $(li).attr("data-id");
+        });
+
+        UpdateGraphCountries(vals);
+
+        $(".graph-filters-modal").hide();
+
+        ga('send', 'event', 'Corona Virus', 'לחיצה לאישור בחירת מדינה');
+
+        $.each(countriesListElement.find("input:checked"), function (key, val) {
+            ga('send', 'event', 'Corona Virus', 'בחירת מדינה', $(val).attr("data-name"));
+        });
+
+    });
+
+
+
+    // Types' radio-buttons.
+    $("input[name='history-graph-type']").change(function () {
+        UpdateGraphCountries(_selectedCountries);
+
+        ga('send', 'event', 'Corona Virus', 'הקלקה על ' + $(this).val());
+    });
+});
+
+
+
+function GetCountryHebrewName(countryName) {
+    var country = $.grep(_countriesHistoryTranslations, function (item) {
+        return item.Name === countryName;
+    });
+
+    if (country.length) {
+        return country[0].HebrewName;
+    } else {
+        return null;
+    }
+}
+
+function GetCountryPopulation(countryName) {
+    var country = $.grep(_countriesHistoryTranslations, function (item) {
+        return item.Name === countryName;
+    });
+
+    if (country.length) {
+        return country[0].Population;
+    } else {
+        return null;
+    }
+}
+
+function GetCountryByName(countryName) {
+    var country = $.grep(_countriesHistoryTranslations, function (item) {
+        return item.Name === countryName;
+    });
+
+    if (country.length) {
+        return country[0];
+    } else {
+        return null;
+    }
+}
+
+function GetCountryById(id) {
+    var country = $.grep(_countriesHistoryTranslations, function (item) {
+        return item.Id === id;
+    });
+
+    if (country.length) {
+        return country[0].Name;
+    } else {
+        return null;
+    }
+}
+
+function ClearCountriesSelection() {
+    countriesSelectedListElement.find('li:not(.template)').remove();
+    countriesListElement.find('li input:checkbox').prop('checked', false).parent().removeClass("checked");;
+}
+
+// Add the countries to the countries search filter.
+function InitializeCountriesSearchFilter() {
+    var templateObject = countriesListElement.find("li.d-none");
+
+    $.each(Object.keys(_historyGraphData), function (key, val) {
+        // Get the country hebrew name. If it doesn't exist, skip it.
+        var hebrewName = GetCountryHebrewName(val);
+
+        if (hebrewName) {
+            var item = templateObject.clone().removeClass("d-none").removeClass("template");
+            item.attr('data-id', val).attr('data-name', hebrewName);
+            item.find('.brand-control-checkbox-title').html(hebrewName);
+            item.find("input:checkbox").attr('data-id', val)
+                .attr('data-name', hebrewName);
+
+            countriesListElement.append(item);
+
+            // When the state is change, work accordingly.
+            item.find("input:checkbox").change(function (e) {
+                // Add checked class to parent because there was a freakin' iOS 13 bug.
+                $(this).parent().toggleClass("checked", $(this).is(":checked"));	
+
+                if ($(this).is(":checked")) {
+                    // Check if more than the max.
+                    if (countriesListElement.find("input:checked").length > _maximumCountriesInHistoryGraph) {
+                        // Prevent the selection.
+                        $(this).prop("checked", false);
+                        alert("לא ניתן לסמן יותר מ-" +
+                            _maximumCountriesInHistoryGraph +
+                            " מדינות.\nיש להסיר מדינה על-מנת להוסיף אחת חדשה.");
+                        return false;
+                    }
+                }
+
+                ToggleSelectedCountry($(this).attr("data-id"), $(this).attr("data-name"), !$(this).is(":checked"));
+            });
+        }
+    });
+
+
+    // Sort the list.
+    countriesListElement.find("li").sort(sort_li) // sort elements
+        .appendTo(countriesListElement); // append again to the list
+    // sort function callback
+    function sort_li(a, b) {
+        return ($(b).data('name')) < ($(a).data('name')) ? 1 : -1;
+    }
+
+}
+
+function ToggleSelectedCountry(countryValue, countryName, remove) {
+    if (remove) {
+        // Remove.
+        countriesSelectedListElement.find("li[data-id='" + countryValue + "']").remove();
+    } else {
+        // Add.
+        var templateObject = countriesSelectedListElement.find("li.d-none");
+        var item = templateObject.clone().removeClass("d-none").removeClass("template");
+        item.attr('data-id', countryValue).find('.brand-control-checkbox-title').html(countryName);
+        item.find('.brand-control-checkbox-label').addClass('checked');     // Add checked class to parent because there was a freakin' iOS 13 bug.
+        countriesSelectedListElement.append(item);
+
+        // If unchecked, it removes itself.
+        item.find("input:checkbox").change(function () {
+            var currItem = $(this).closest("li");
+
+            // Remove the selection from the other checkbox too.
+            countriesListElement.find("li input[data-id='" + currItem.attr("data-id") + "']").prop("checked", false).parent().removeClass("checked");
+
+            currItem.remove();
+        });
+    }
+}
+
+
+// Graph initialization.
+function InitializeHistoryGraph(graphCanvasId) {
+
+    // Get default countries' names.
+    var defaultCountries = [];
+    $.each(_countriesHistoryDefaultCountries, function (key, val) {
+        defaultCountries.push(GetCountryById(val));
+    });
+
+
+    // Get the data from the API first.
+    $.getJSON(_historyGraphUrl, function (countries) {
+        _historyGraphData = countries;
+
+        InitializeCountriesSearchFilter();
+
+        // Get first and last dates.
+        var endDate = new moment();
+        endDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+
+        var allDates = [];
+        // Note: the new Date() for the start date it's because otherwise the start-date object will get altered. This way, it's duplicated into 'd'.
+        for (var d = new moment(_historyStartDate); d <= endDate; d.add(1, 'days')) {
+            var currDate = new moment(d);
+            if (isGraphDateRelevant(currDate)) { // Filter.
+                allDates.push(currDate);
+            }
+        }
+        
+        // Graph.
+        var ctx = document.getElementById(graphCanvasId).getContext('2d');
+        _historyGraphChart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: allDates,
+                datasets: GetCountriesHistoryData(defaultCountries),
+            },
+            // Configuration options go here
+            options: {
+                scaleShowValues: true,
+                aspectRatio: isMobile ? 1 : 2,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 60,
+                        top: 20,
+                        bottom: (isMobile ? 0 : 60)
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: 'rgba(12, 12, 12, 0.9)',
+                    titleAlign: 'right',
+                    bodyAlign: 'right',
+                    footerAlign: 'right',
+                    textDirection: 'rtl',
+                    displayColors: true,
+                    //multiKeyBackground: 'rgba(0,0,0,0)',
+                    mode: 'index',
+                    intersect: false,
+                    //
+                    itemSort: (a, b, data) => parseInt(a.value) > parseInt(b.value) ? -1 : 1,
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            return data.datasets[tooltipItem.datasetIndex].label + ": " + parseInt(tooltipValue).toLocaleString() + "  ";
+                        },
+                        title: function (tooltipItem, data) {
+                            return new moment(tooltipItem[0].xLabel).format("DD.MM.YY");
+                        }
+                    }
+                },
+                scales: {
+                    yAxes: [{
+                        gridLines: {
+                            color: "#d8d8d8",
+                            lineWidth: 1,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            //suggestedMin: minValue,
+                            //suggestedMax: maxValue,
+                            //stepSize: step,
+                            fontColor: "#0c0c0c",
+                            padding: 15,
+                            userCallback: function (value, index, values) {
+                                value = value.toString();
+                                value = value.split(/(?=(?:...)*$)/);
+                                value = value.join(',');
+                                return value;
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            fontColor: "#0c0c0c",
+                            fontSize: 18,
+                            padding: 10,
+                            maxRotation: 0,
+                            minRotation: 0,
+                            autoSkip: false,
+                            maxTicksLimit: 100000,
+                            //maxRotation: 0,
+                            // Hide labels on X axis if it's not the first or last.
+                            callback: function (value, index, values) {
+                                // Get the date. Value is just the label.
+                                if (values[index]) {
+                                    var date = new moment(values[index].value);
+
+                                    //if (date.date() == 1) {
+                                    //    return date.format('DD.MM.YY');
+                                    //}
+
+                                    return (index != 0 && index != (values.length - 1)) ? "" : date.format('DD.MM.YY');
+                                }
+                            },
+                            min: new moment(_countriesHistoryZoomStartDate, "MM.DD.YY")
+                        }
+                    }],
+                    offset: true
+                },
+                // Disable points.
+                elements: {
+                    point: {
+                        //radius: 0
+                    }
+                },
+                plugins: {
+                    // Change options for ALL labels of THIS CHART
+                    datalabels: {
+                        display: false
+                    },
+                    crosshair: {
+                        line: {
+                            color: '#6e6c70',        // crosshair line color
+                            width: 1,             // crosshair line width
+                        },
+                        zoom: {
+                            enabled: false
+                        }
+                    },
+                    zoom: {
+                        // Container for pan options
+                        pan: {
+                            // Boolean to enable panning
+                            enabled: true,
+
+                            // Panning directions. Remove the appropriate direction to disable
+                            // Eg. 'y' would only allow panning in the y direction
+                            // A function that is called as the user is panning and returns the
+                            // available directions can also be used:
+                            //   mode: function({ chart }) {
+                            //     return 'xy';
+                            //   },
+                            mode: 'x',
+
+                            rangeMin: {
+                                //    // Format of min pan range depends on scale type
+                                //    x: "09.24.20",
+                                x: allDates[0].valueOf(),           // Unix timecode, god knows why...
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: allDates[allDates.length - 1].valueOf(),           // Unix timecode, god knows why...
+                            }
+
+
+                            // On category scale, factor of pan velocity
+                            //speed: 20,
+
+                            // Minimal pan distance required before actually applying pan
+                            //threshold: 10,
+                        },
+
+                        // Container for zoom options
+                        zoom: {
+                            // Boolean to enable zooming
+                            enabled: true,
+                            mode: 'x',
+                            rangeMin: {
+                                //    // Format of min pan range depends on scale type
+                                //    x: "09.24.20",
+                                x: allDates[0].valueOf(),           // Unix timecode, god knows why...
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: allDates[allDates.length - 1].valueOf(),           // Unix timecode, god knows why...
+                            }
+                        }
+                    }
+
+                }
+            }
+        });
+
+        // Set the font here.
+        Chart.defaults.global.defaultFontFamily = 'Yonit';
+        Chart.defaults.global.defaultFontSize = 18;
+    });
+}
+
+
+
+
+// Get a country's data.
+function GetCountryHistoryForDataset(countryName, valuePropertyName) {
+    var country = _historyGraphData[countryName];
+    var population = GetCountryPopulation(countryName);
+
+    var data = [];
+    for (var i = 0; i < country.length; i++) {
+        var dateData = country[i];
+        var currDate = new moment(dateData.date, 'YYYY-M-DD');
+        if (currDate >= _historyStartDate) {
+            // Get per million stats.
+            if (isGraphDateRelevant(currDate)) {        // Filter.
+                var value = (dateData[valuePropertyName] / population) * 1000000;
+                data.push(Math.round(value));
+            }
+        }
+    }
+
+    return data;
+}
+
+
+// Gets the selected type (from the radio-button).
+function GetCurrentHistoryGraphType() {
+    return $("input[name='history-graph-type']:checked").val();
+}
+
+
+// Get data for selected countries.
+function GetCountriesHistoryData(countriesNames) {
+    // Save the list of countries.
+    _selectedCountries = countriesNames;
+
+    var datasets = [];
+
+    var graphType = GetCurrentHistoryGraphType();
+
+    $.each(_selectedCountries, function (key, val) {
+        datasets.push({
+            label: GetCountryHebrewName(val),
+            borderColor: HISTORY_GRAPH_COLORS[key],
+            backgroundColor: HISTORY_GRAPH_COLORS[key],
+            lineTension: 0,
+            data: GetCountryHistoryForDataset(val, graphType),
+            fill: false,
+            borderWidth: 4,
+            pointRadius: 1.4,         // Change to 0 to remove the dots.
+            pointHitRadius: isMobile ? 0 : 4
+        });
+    });
+
+    return (datasets);
+}
+
+
+// Updates the list of countries in the graph.
+function UpdateGraphCountries(countriesNames) {
+    _historyGraphChart.data.datasets = GetCountriesHistoryData(countriesNames);
+    _historyGraphChart.update();
+}
+
+
+
+/**
+ * This code draws the country name at the end of the graph.
+ */
+var lineTextWriteCount = 0;
+function drawLabels(t) {
+    // Tal's Fix: draw it only for the first line (it draws all lines in the forEach loop, but it loops for each line, making it double!).
+    if (t.index > 0) {
+        return;
+    }
+
+    if (!document.getElementById("line-history-graph-canvas")) {
+        return;
+    }
+
+    var ctx = document.getElementById("line-history-graph-canvas").getContext("2d");            // Only for the history graph!
+    if (ctx != t.chart.ctx) {       // Skip irrelevant graphs.
+        return;
+    }
+
+
+    ctx.save();
+    ctx.font = Chart.helpers.fontString(14, 'normal', Chart.defaults.global.defaultFontFamily);
+    //ctx.fillStyle = t._config.borderColor;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'end';
+    
+    var chartInstance = t.chart;
+    var datasets = chartInstance.config.data.datasets;
+
+    var lastDots = [];
+
+    // Get last X index.
+    var lastValue = chartInstance.scales["x-axis-0"].ticks[chartInstance.scales["x-axis-0"].ticks.length - 1];
+    var lastDate = new moment(lastValue, 'DD.MM.YY').valueOf();
+
+    // Find closest point.
+    var closestPointIndex = 0;
+    for (var i = 1; i < chartInstance.data.labels.length; i++) {
+        if (chartInstance.data.labels[i].valueOf() <= lastDate) {
+            closestPointIndex = i - 1;
+        } else {
+            break;
+        }
+    }
+
+    // Get all dots.
+    datasets.forEach(function (ds, index) {
+        var label = ds.label;
+        var meta = chartInstance.controller.getDatasetMeta(index);
+        //var len = meta.data.length - 1;
+
+        if (meta.data[closestPointIndex - 1]) {
+            lastDots.push({
+                label: label,
+                y: meta.data[closestPointIndex - 1]._model.y,
+                x: chartInstance.controller.scales["x-axis-0"].right + 5,
+                color: ds.borderColor,
+            });
+        } 
+    });
+
+    // Order by y.
+    lastDots.sort((a, b) => (a.y > b.y) ? -1 : 1);
+    
+    var labelsLocations = [];
+    lastDots.forEach(function (value) {
+        // Get the Y location.
+        var y = value.y;
+        var yLocationOk = false;
+
+        // Check if there's existing label in the current location, and move up accordingly.
+        while (!yLocationOk) {
+            yLocationOk = true;
+            $.each(labelsLocations, function (key, currY) {
+                if ((y <= (currY + Y_SPACING_CHECK)) && (y >= (currY - Y_SPACING_CHECK))) {
+                    yLocationOk = false;
+                    y = currY - Y_SPACING_JUMP;
+                }
+            });
+        }
+
+        labelsLocations.push(y);
+        
+        ctx.fillStyle = value.color;
+        ctx.fillText(value.label, value.x, y);
+        //console.log(value.x, y, value.label);
+    });
+    ctx.restore();
+}
+
+var originalController = Chart.controllers.line;
+Chart.controllers.line = Chart.controllers.line.extend({
+    draw: function () {
+        originalController.prototype.draw.call(this, arguments);
+        drawLabels(this);
+    }
+});
+/**
+ * END: This code draws the country name at the end of the graph.
+ */
